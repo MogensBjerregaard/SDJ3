@@ -29,7 +29,7 @@ public class DataServerController extends UnicastRemoteObject implements IDataSe
 	
 	public Connection getConnection() throws SQLException {
 //		DriverManager.registerDriver(new org.postgresql.Driver());
-		return DriverManager.getConnection("jdbc:postgresql://localhost:5432/SDJ3_Project", "postgres", "moven5");
+		return DriverManager.getConnection("jdbc:postgresql://localhost:5432/SDJ3_Project", "postgres", "Postgres");
 	}
 	
 	public void updateView(String message) {

@@ -335,7 +335,7 @@ public class Station2View extends JFrame{
 		this.btnWeigh.setEnabled(true);
 	}
 	private static void loadProperties(){
-		try (InputStream in = new FileInputStream("station2.properties")){
+		try (InputStream in = new FileInputStream("SDJ3_project_assignment\\station2.properties")){
 			properties = new Properties();
 			properties.load(in);
 		} catch (FileNotFoundException e) {
