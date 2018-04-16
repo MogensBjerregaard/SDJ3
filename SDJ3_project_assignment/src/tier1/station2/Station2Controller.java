@@ -69,10 +69,9 @@ public class Station2Controller extends UnicastRemoteObject implements ISubscrib
 			System.out.println("Station 2 - failed creating new carpart on business server");
 		}
 	}
-	public void generatePallets(boolean wheelSelected, boolean doorSelected, boolean seatSelected, boolean engineSelected,
-			boolean steeringwheelSelected) {
+	public void generatePallets(String carPartType) {
 		try {
-			businessServer.generatePallets(wheelSelected,doorSelected,seatSelected,engineSelected,steeringwheelSelected);
+			businessServer.generatePallets(carPartType);
 		} catch (RemoteException e) {
 			view.notifyUserError("Error generating pallets on business server");
 		}

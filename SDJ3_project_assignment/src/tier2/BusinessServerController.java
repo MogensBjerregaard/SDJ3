@@ -2,7 +2,6 @@ package tier2;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.time.LocalDateTime;
@@ -29,7 +28,8 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	private ArrayList<ISubscriber> palletQueueSubscribers;
 	private int palletRegistrationNumberCount;
 
-	public BusinessServerController() throws RemoteException{
+	public BusinessServerController(IDataServer dataServer) throws RemoteException{
+		this.dataServer = dataServer;
 		this.view = new BusinessServerView();
 		this.dismantlingQueue = new LinkedBlockingQueue<>();
 		this.carPartQueue = new LinkedBlockingQueue<>();
@@ -39,7 +39,7 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 		this.palletRegistrationNumberCount = 0;
 		this.palletQueue = new ArrayList<>();
 		this.bindToRegistry();
-		this.connectDataServer();
+		this.initiateSystem();
 		this.updateView("Registry naming rebind using '"+registryName+"' successful");
 		this.updateView(registryName+" is running");
 	}
@@ -55,14 +55,13 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 			System.out.println("Error binding "+registryName+" to registry.\nCheck if the Data Server is running and restart "+registryName+"\n"+e.getMessage());
 		}
 	}
-	private void connectDataServer() throws RemoteException {
+	private void initiateSystem() throws RemoteException {
 		try {
-			this.dataServer = (IDataServer) Naming.lookup("rmi://localhost/DataServer");
 			this.updateView("Connected to DataServer");
 			this.dataServer.updateView(registryName+" connected");
 			this.palletRegistrationNumberCount = this.dataServer.getNextPalletRegistrationNumber();
 			//dataServer.initiateQueues() //load data from DB to businessServer on startup
-		} catch (MalformedURLException | RemoteException | NotBoundException e) {
+		} catch (RemoteException e) {
 			System.out.println("Failed connecting to DataServer"+e.getMessage());
 		}
 	}
@@ -169,77 +168,25 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	
 	//takes selected car part types from car part queue and place them on pallets. fills 1 pallet until max weight or until empty of car part
 	@Override
-	public void generatePallets(boolean wheelSelected, boolean doorSelected, boolean seatSelected,
-			boolean engineSelected, boolean steeringwheelSelected) throws RemoteException {
+	public void generatePallets(String carPartType) throws RemoteException {
 		double maxWeight = 500;
-		double wheelPalletWeight=0, doorPalletWeight=0, seatPalletWeight=0, enginePalletWeight=0, steeringPalletWeight=0;
-		Pallet wheelPallet = new Pallet("Wheels", maxWeight);
-		Pallet doorPallet = new Pallet("Doors", maxWeight);
-		Pallet seatPallet = new Pallet("Seats", maxWeight);
-		Pallet enginePallet = new Pallet("Engines", maxWeight);
-		Pallet steeringPallet = new Pallet("Steeringwheels", maxWeight);
+		double weight=0;
+		Pallet pallet = new Pallet(carPartType, maxWeight);
 
 		for (CarPart carPart : this.carPartQueue) {
-			if(wheelSelected&&carPart.getType().equals("Wheel")&&(wheelPalletWeight<maxWeight)) {
-				if ((wheelPalletWeight+carPart.getWeight())<=maxWeight) {
-					wheelPallet.addParts(carPart);
+			if(weight<maxWeight&&carPart.getType().equals(carPartType)) {
+				if ((weight+carPart.getWeight())<=maxWeight) {
+					pallet.addParts(carPart);
 					this.carPartQueue.remove(carPart);
 					this.dataServer.deleteFromCarPartQueue();
 				}
 			}
-			if(doorSelected&&carPart.getType().equals("Door")&&(doorPalletWeight<maxWeight)) {
-				if ((doorPalletWeight+carPart.getWeight())<=maxWeight) {
-					doorPallet.addParts(carPart);
-					this.carPartQueue.remove(carPart);
-					this.dataServer.deleteFromCarPartQueue();
-				}
-			}
-			if(seatSelected&&carPart.getType().equals("Seat")&&(seatPalletWeight<maxWeight)) {
-				if ((seatPalletWeight+carPart.getWeight())<=maxWeight) {
-					seatPallet.addParts(carPart);
-					this.carPartQueue.remove(carPart);
-					this.dataServer.deleteFromCarPartQueue();
-				}
-			}
-			if(engineSelected&&carPart.getType().equals("Engine")&&(enginePalletWeight<maxWeight)) {
-				if ((enginePalletWeight+carPart.getWeight())<=maxWeight) {
-					enginePallet.addParts(carPart);
-					this.carPartQueue.remove(carPart);
-					this.dataServer.deleteFromCarPartQueue();
-				}
-			}
-			if(steeringwheelSelected&&carPart.getType().equals("Steeringwheel")&&(steeringPalletWeight<maxWeight)) {
-				if ((steeringPalletWeight+carPart.getWeight())<=maxWeight) {
-					steeringPallet.addParts(carPart);
-					this.carPartQueue.remove(carPart);
-					this.dataServer.deleteFromCarPartQueue();
-				}
-			}
+	
 		}
-		if(!wheelPallet.getParts().isEmpty()) {
-			wheelPallet.setRegistrationNumber(palletRegistrationNumberCount++);
-			this.palletQueue.add(wheelPallet);
-			this.dataServer.insertPallet(wheelPallet);
-		}
-		if(!doorPallet.getParts().isEmpty()) {
-			doorPallet.setRegistrationNumber(palletRegistrationNumberCount++);
-			this.palletQueue.add(doorPallet);
-			this.dataServer.insertPallet(doorPallet);
-		}
-		if(!seatPallet.getParts().isEmpty()) {
-			seatPallet.setRegistrationNumber(palletRegistrationNumberCount++);
-			this.palletQueue.add(seatPallet);
-			this.dataServer.insertPallet(seatPallet);
-		}
-		if(!enginePallet.getParts().isEmpty()) {
-			enginePallet.setRegistrationNumber(palletRegistrationNumberCount++);
-			this.palletQueue.add(enginePallet);
-			this.dataServer.insertPallet(enginePallet);
-		}
-		if(!steeringPallet.getParts().isEmpty()) {
-			steeringPallet.setRegistrationNumber(palletRegistrationNumberCount++);
-			this.palletQueue.add(steeringPallet);
-			this.dataServer.insertPallet(steeringPallet);
+		if(!pallet.getParts().isEmpty()) {
+			pallet.setRegistrationNumber(palletRegistrationNumberCount++);
+			this.palletQueue.add(pallet);
+			this.dataServer.insertPallet(pallet);
 		}
 		updateCarPartQueueSubscribers();
 		updatePalletQueueSubscribers();

@@ -49,7 +49,7 @@ public class Pallet implements Serializable{
 
 	@Override
 	public String toString() {
-		if(typeOfPart.equals("Steeringwheels")) return "#"+registrationNumber+": StWheel "+parts.size()+"p";
-		return "#"+registrationNumber+": "+typeOfPart.substring(0, typeOfPart.length()-1)+" "+parts.size()+"p";
+		if(typeOfPart.equals("Steeringwheel")) return "#"+registrationNumber+": StWheel "+parts.size()+"p";
+		return "#"+registrationNumber+": "+typeOfPart+" "+parts.size()+"p";
 	}
 }

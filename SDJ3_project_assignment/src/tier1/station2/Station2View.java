@@ -5,6 +5,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.swing.JButton;
@@ -58,7 +62,8 @@ public class Station2View extends JFrame{
 	private JCheckBox chckbxDoors;
 	private JCheckBox chckbxSeats;
 	private JCheckBox chckbxEngines;
-	private JCheckBox chckbxSteeringwheels;
+	private JCheckBox chckbxSteering;
+	private HashMap<JCheckBox, String> checkBoxes;
 
 	public Station2View(Station2Controller controller) {
 		loadProperties();
@@ -176,26 +181,32 @@ public class Station2View extends JFrame{
 		this.lblStoredPallets = new JLabel("Stored pallets");
 		this.lblStoredPallets.setBounds(485, 50, 100, 20);
 		this.contentPane.add(this.lblStoredPallets);
-
+		
+		this.checkBoxes = new HashMap<>();
 		this.chckbxWheels = new JCheckBox("Wheels");
+		this.checkBoxes.put(chckbxWheels, "Wheel");
 		this.chckbxWheels.setBounds(347, 175, 70, 23);
 		this.contentPane.add(this.chckbxWheels);
 
 		this.chckbxDoors = new JCheckBox("Doors");
+		this.checkBoxes.put(chckbxDoors, "Door");
 		this.chckbxDoors.setBounds(347, 197, 64, 23);
 		this.contentPane.add(this.chckbxDoors);
 
 		this.chckbxSeats = new JCheckBox("Seats");
+		this.checkBoxes.put(chckbxSeats, "Seat");
 		this.chckbxSeats.setBounds(348, 225, 63, 23);
 		this.contentPane.add(this.chckbxSeats);
 
 		this.chckbxEngines = new JCheckBox("Engines");
+		this.checkBoxes.put(chckbxEngines, "Engine");
 		this.chckbxEngines.setBounds(417, 175, 97, 23);
 		this.contentPane.add(this.chckbxEngines);
 
-		this.chckbxSteeringwheels = new JCheckBox("Steeringwheels");
-		this.chckbxSteeringwheels.setBounds(417, 197, 119, 23);
-		this.contentPane.add(this.chckbxSteeringwheels);
+		this.chckbxSteering = new JCheckBox("Steeringwheels");
+		this.checkBoxes.put(chckbxSteering, "Steeringwheel");
+		this.chckbxSteering.setBounds(417, 197, 119, 23);
+		this.contentPane.add(this.chckbxSteering);
 
 		this.btnGeneratePallets = new JButton("Generate pallets");
 		this.btnGeneratePallets.setBounds(417, 223, 177, 27);
@@ -231,15 +242,13 @@ public class Station2View extends JFrame{
 			}
 		});
 		this.btnGeneratePallets.addActionListener(arg0 -> {
-			if(!this.chckbxWheels.isSelected()&&!this.chckbxDoors.isSelected()&&!this.chckbxSeats.isSelected()&&!this.chckbxEngines.isSelected()&&!this.chckbxSteeringwheels.isSelected()) {
+			if(!this.chckbxWheels.isSelected()&&!this.chckbxDoors.isSelected()&&!this.chckbxSeats.isSelected()&&!this.chckbxEngines.isSelected()&&!this.chckbxSteering.isSelected()) {
 				this.notifyUserError("Please tick off one or more car parts palleting");
 			} else {
-				this.controller.generatePallets(this.chckbxWheels.isSelected(),this.chckbxDoors.isSelected(),this.chckbxSeats.isSelected(),this.chckbxEngines.isSelected(),this.chckbxSteeringwheels.isSelected());
-				this.chckbxWheels.setSelected(false);
-				this.chckbxDoors.setSelected(false);
-				this.chckbxSeats.setSelected(false);
-				this.chckbxEngines.setSelected(false);
-				this.chckbxSteeringwheels.setSelected(false);
+				for (Entry<JCheckBox, String> entry : checkBoxes.entrySet()) {
+					if(entry.getKey().isSelected()) this.controller.generatePallets(entry.getValue());
+					entry.getKey().setSelected(false);
+				}
 			}
 		});
 
@@ -335,7 +344,7 @@ public class Station2View extends JFrame{
 		this.btnWeigh.setEnabled(true);
 	}
 	private static void loadProperties(){
-		try (InputStream in = new FileInputStream("SDJ3_project_assignment\\station2.properties")){
+		try (InputStream in = new FileInputStream("./station2.properties")){
 			properties = new Properties();
 			properties.load(in);
 		} catch (FileNotFoundException e) {

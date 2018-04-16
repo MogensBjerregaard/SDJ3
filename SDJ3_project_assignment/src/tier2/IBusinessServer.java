@@ -17,6 +17,5 @@ public interface IBusinessServer extends Remote{
 	public void subscribeToCarPartsQueue(ISubscriber subscriber) throws RemoteException;
 	public void subscribeToPalletsQueue(ISubscriber subscriber) throws RemoteException;
 	public void updateView(String message) throws RemoteException;
-	public void generatePallets(boolean wheelSelected, boolean doorSelected, boolean seatSelected,
-			boolean engineSelected, boolean steeringwheelSelected) throws RemoteException;
+	public void generatePallets(String carPartType) throws RemoteException;
 }
