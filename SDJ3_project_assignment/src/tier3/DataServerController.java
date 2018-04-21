@@ -97,8 +97,10 @@ public class DataServerController extends UnicastRemoteObject implements IDataSe
 
 	@Override
 	public ArrayList<Product> getMatchingProducts(String chassisNumber) throws RemoteException {
+		//TO DO: implement db query code
 		//must query db and return a ArrayList of matching products for the chassisnumber
-		
+		ArrayList<Product> matchingProducts = new ArrayList<>();
+	
 		//for testing - remove before release 
 		if (chassisNumber.equals("1234")) {
 			
@@ -126,14 +128,12 @@ public class DataServerController extends UnicastRemoteObject implements IDataSe
 			parts2.add(carPart2);
 			parts2.add(carPart3);
 			productDummy2.setParts(parts2);
-			ArrayList<Product> matchingProducts = new ArrayList<>();
 			matchingProducts.add(productDummy1);
 			matchingProducts.add(productDummy2);
 			
-			return matchingProducts;			
 		}
 		///////////////////////////////////////////
 		
-		return new ArrayList<>();
+		return matchingProducts;			
 	}
 }
