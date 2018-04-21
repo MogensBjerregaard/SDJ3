@@ -9,7 +9,8 @@ import java.rmi.server.UnicastRemoteObject;
 import common.Car;
 import common.CarPart;
 import common.ISubscriber;
-import tier2.IBusinessServer;
+import tier2.businessserver.BusinessServerController;
+import tier2.businessserver.IBusinessServer;
 
 public class Station2Controller extends UnicastRemoteObject implements ISubscriber{
 
@@ -17,11 +18,16 @@ public class Station2Controller extends UnicastRemoteObject implements ISubscrib
 	private Station2View view;
 	private static final String registryName = "Station2";
 	private IBusinessServer businessServer;
-	public Station2Controller()throws RemoteException {
+	
+	public Station2Controller()throws RemoteException, MalformedURLException, NotBoundException {
+		this.businessServer = BusinessServerController.getRemoteObject();
 		this.view = new Station2View(this);
 		this.view.setVisible(true);
 		this.bindToRegistry();
-		this.connectBusinessServer();
+		this.businessServer.subscribeToCarQueue(this);
+		this.businessServer.subscribeToCarPartsQueue(this);
+		this.businessServer.subscribeToPalletsQueue(this);
+		this.businessServer.updateView(registryName+" connected");
 	}
 	private void bindToRegistry(){
 		try {
@@ -30,17 +36,7 @@ public class Station2Controller extends UnicastRemoteObject implements ISubscrib
 			System.out.println("Error binding "+registryName+" to registry.\nCheck if the Business Server is running and restart "+registryName+"\n"+e.getMessage());
 		}
 	}
-	private void connectBusinessServer() throws RemoteException {
-		try {
-			this.businessServer = (IBusinessServer) Naming.lookup("rmi://localhost/BusinessServer");
-			this.businessServer.subscribeToCarQueue(this);
-			this.businessServer.subscribeToCarPartsQueue(this);
-			this.businessServer.subscribeToPalletsQueue(this);
-			this.businessServer.updateView(registryName+" connected");
-		} catch (MalformedURLException | RemoteException | NotBoundException e) {
-			System.out.println("Failed connecting to BusinessServer"+e.getMessage());
-		}
-	}
+
 	@Override
 	public void updateEnqueuedCarList(String message) throws RemoteException {
 		view.updateEnqueuedCarsList(message);

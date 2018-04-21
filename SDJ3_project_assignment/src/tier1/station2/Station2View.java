@@ -5,9 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Properties;
 
@@ -27,6 +25,7 @@ import common.Car;
 public class Station2View extends JFrame{
 	private static final long serialVersionUID = 1L;
 	private static Properties properties;
+	private Station2Controller controller;
 	private JPanel contentPane;
 
 	private JButton btnDequeueCar;
@@ -50,7 +49,6 @@ public class Station2View extends JFrame{
 	private JLabel lblCarpartsWeighed;
 	private JLabel lblStoredPallets;
 	private JTextArea textAreaPallets;
-	private Station2Controller controller;
 	private double weightWheel;
 	private double weightDoor;
 	private double weightSeat;
@@ -75,7 +73,7 @@ public class Station2View extends JFrame{
 		this.setResizable(false);
 		this.setTitle("Station 2 Tier 1");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setBounds(650, 350, 640, 300);
+		this.setBounds(410, 50, 640, 300);
 		this.contentPane = new JPanel();
 		this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		this.setContentPane(this.contentPane);
@@ -232,13 +230,15 @@ public class Station2View extends JFrame{
 				this.controller.inputCarPart(this.loadedCar, this.loadedCar.getChassisNumber()+"SE4", "Seat", this.weightSeat);
 				this.controller.inputCarPart(this.loadedCar, this.loadedCar.getChassisNumber()+"EN", "Engine", this.weightEngine);
 				this.controller.inputCarPart(this.loadedCar, this.loadedCar.getChassisNumber()+"ST", "Steeringwheel", this.weightSteering);
-				this.notifyUserSucces("All carparts was registered succesful.");
 				this.textFieldWheel.setText("");
 				this.textFieldDoor.setText("");
 				this.textFieldSeat.setText("");
 				this.textFieldEngine.setText("");
 				this.textFieldSteering.setText("");
 				this.lblCarToBeDismantled.setText("");
+				this.btnDequeueCar.setEnabled(true);
+				this.btnWeigh.setEnabled(false);
+				this.notifyUserSucces("All carparts was registered succesful.");
 			}
 		});
 		this.btnGeneratePallets.addActionListener(arg0 -> {
@@ -331,8 +331,6 @@ public class Station2View extends JFrame{
 	}
 	public void updateCarPartsList(String message) {
 		this.textAreaCarParts.setText(message);
-		this.btnDequeueCar.setEnabled(true);
-		this.btnWeigh.setEnabled(false);
 	}
 	public void updatePalletsList(String message) {
 		this.textAreaPallets.setText(message);

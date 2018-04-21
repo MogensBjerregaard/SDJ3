@@ -1,4 +1,4 @@
-package tier2;
+package tier2.businessserver;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

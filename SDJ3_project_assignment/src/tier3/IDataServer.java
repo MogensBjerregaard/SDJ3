@@ -2,7 +2,7 @@ package tier3;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.sql.SQLException;
+import java.util.ArrayList;
 
 import common.Car;
 import common.CarPart;
@@ -19,4 +19,5 @@ public interface IDataServer extends Remote{
 	void deleteCarFromQueue(Car car) throws RemoteException;
 	int getNextPalletRegistrationNumber() throws RemoteException;
 	void deleteFromCarPartQueue() throws RemoteException;
+	ArrayList<Product> getMatchingProducts(String chassisNumber) throws RemoteException;
 }

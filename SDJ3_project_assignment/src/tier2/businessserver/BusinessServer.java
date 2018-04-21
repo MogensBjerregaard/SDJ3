@@ -1,4 +1,4 @@
-package tier2;
+package tier2.businessserver;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;

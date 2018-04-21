@@ -1,4 +1,4 @@
-package tier3;
+package tier2.businessserver;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -6,21 +6,21 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 
-public class DataServerView extends JFrame {
+public class BusinessServerView extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTextArea textArea;
 	
-	public DataServerView() {
+	public BusinessServerView() {
 		setResizable(false);
 		initiateComponents();
 	}
 	private void initiateComponents() {
 		this.setVisible(true);
-		setTitle("Data Server Tier 3");
+		setTitle("Business Server Tier 2");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(50, 650, 600, 300);
+		setBounds(50, 350, 600, 300);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);

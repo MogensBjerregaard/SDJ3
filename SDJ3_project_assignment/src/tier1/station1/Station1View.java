@@ -45,7 +45,7 @@ public class Station1View extends JFrame {
 		this.setResizable(false);
 		this.setTitle("Station 1 Tier 1");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setBounds(650, 50, 360, 300);
+		this.setBounds(50, 50, 360, 300);
 		this.contentPane = new JPanel();
 		this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		this.setContentPane(this.contentPane);

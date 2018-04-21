@@ -1,7 +1,8 @@
-package tier2;
+package tier2.businessserver;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.time.LocalDateTime;
@@ -40,8 +41,9 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 		this.palletQueue = new ArrayList<>();
 		this.bindToRegistry();
 		this.initiateSystem();
-		this.updateView("Registry naming rebind using '"+registryName+"' successful");
-		this.updateView(registryName+" is running");
+	}
+	public static IBusinessServer getRemoteObject() throws MalformedURLException, RemoteException, NotBoundException {
+		return (IBusinessServer) Naming.lookup("rmi://localhost/"+registryName);
 	}
 	@Override
 	public void updateView(String message) {
@@ -59,6 +61,8 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 		try {
 			this.updateView("Connected to DataServer");
 			this.dataServer.updateView(registryName+" connected");
+			this.updateView("Registry naming rebind using '"+registryName+"' successful");
+			this.updateView(registryName+" is running");
 			this.palletRegistrationNumberCount = this.dataServer.getNextPalletRegistrationNumber();
 			//dataServer.initiateQueues() //load data from DB to businessServer on startup
 		} catch (RemoteException e) {
