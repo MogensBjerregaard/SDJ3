@@ -8,7 +8,6 @@ package tier2.webserver.skeleton;
 
 import tier2.webserver.GetProductsResponse;
 import tier2.webserver.WebserverController;
-import tier2.webserver.WebserverView;
 
 /**
  *  WebServiceSkeleton java skeleton for the axisService
@@ -17,7 +16,7 @@ public class WebServiceSkeleton implements WebServiceSkeletonInterface {
 	private WebserverController controller;
 	public WebServiceSkeleton() {
 		super();
-		controller = new WebserverController(WebserverView.getInstance());
+		controller = WebserverController.getInstance();
 	}
     public tier2.webserver.GetProductsResponse getProducts(
     	

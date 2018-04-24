@@ -10,16 +10,11 @@ package common.xsd;
 /**
  *  Pallet bean class
  */
-@SuppressWarnings({"unchecked", "rawtypes",
+@SuppressWarnings({"unchecked",
     "unused"
 })
 public class Pallet implements org.apache.axis2.databinding.ADBBean {
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-	/* This type was generated from the piece of schema that had
+    /* This type was generated from the piece of schema that had
        name = Pallet
        Namespace URI = http://common/xsd
        Namespace Prefix = ns1

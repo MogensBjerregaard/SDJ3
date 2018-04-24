@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import common.Car;
@@ -76,7 +77,7 @@ public class DataServerController extends UnicastRemoteObject implements IDataSe
 	}
 	@Override
 	public void insertProduct(Product product) {
-		// TODO Auto-generated method stub
+		// insert product in db 
 		
 	}
 	@Override
@@ -97,7 +98,7 @@ public class DataServerController extends UnicastRemoteObject implements IDataSe
 
 	@Override
 	public ArrayList<Product> getMatchingProducts(String chassisNumber) throws RemoteException {
-		//TO DO: implement db query code
+		//TO DO: implement db query code here
 		//must query db and return a ArrayList of matching products for the chassisnumber
 		ArrayList<Product> matchingProducts = new ArrayList<>();
 	
@@ -135,5 +136,33 @@ public class DataServerController extends UnicastRemoteObject implements IDataSe
 		///////////////////////////////////////////
 		
 		return matchingProducts;			
+	}
+
+	@Override
+	public int getNextProductRegistrationNumber() throws RemoteException {
+		// should return next product registration number from db
+		return 0;
+	}
+
+	@Override
+	public void initiateQueues() throws RemoteException {
+		// on start up - read the stored carparts, pallets, and products from database and send to business server queues
+	}
+
+	@Override
+	public HashMap<CarPart, Pallet> getNextCarPartFromPallet(String carPartType) throws RemoteException {
+		// should find next carPart type in stock from DB and return the CarPart and the Pallet it is stored on
+		// delete carPart from pallet in db
+		// update pallet - if pallet is empty - delete pallet too
+		
+		
+		//for testing - must be removed before release
+		Car car = new Car("5323", 1235, "Ford");
+		CarPart carPart = new CarPart("1234WH1", car, "Wheel", 35);
+		Pallet pallet = new Pallet("Wheel", 500);
+		pallet.setRegistrationNumber(0);
+		HashMap<CarPart, Pallet> pair = new HashMap<>();
+		pair.put(carPart, pallet);
+		return pair;
 	}
 }

@@ -56,6 +56,11 @@ public class Station1Controller extends UnicastRemoteObject implements ISubscrib
 		// TODO Auto-generated method stub
 		
 	}
+	@Override
+	public void updateProductsList(String message) throws RemoteException {
+		// TODO Auto-generated method stub
+		
+	}
 
 }
 

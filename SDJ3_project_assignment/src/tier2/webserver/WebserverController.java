@@ -19,16 +19,22 @@ public class WebserverController {
 	private IDataServer dataServer;
 	private static final String registryName = "Webserver";
 	private static final String dataServerName = "DataServer";
-	public WebserverController(WebserverView view) {
+	private WebserverController() {
 		try {
 			dataServer = (IDataServer) Naming.lookup("rmi://localhost/"+dataServerName);
 			dataServer.updateView(registryName+" connected");
 		} catch (MalformedURLException | RemoteException | NotBoundException e) {
 			System.out.println("Error connecting DataServer to WebServiceSkeleton\n"+ e.getMessage());
 		}
-		this.view = view;
+		this.view = WebserverView.getInstance();
 		WebserverController.updateView("Connected to "+dataServerName); 
 		WebserverController.updateView(registryName+" is running");
+	}
+	private static class Wrapper{
+		static WebserverController instance = new WebserverController();
+	}
+	public static WebserverController getInstance() {
+		return Wrapper.instance;
 	}
 	private static void updateView(String message) {
 		LocalDateTime timePoint = LocalDateTime.now();

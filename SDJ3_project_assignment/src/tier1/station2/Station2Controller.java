@@ -72,5 +72,10 @@ public class Station2Controller extends UnicastRemoteObject implements ISubscrib
 			view.notifyUserError("Error generating pallets on business server");
 		}
 	}
+	@Override
+	public void updateProductsList(String message) throws RemoteException {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

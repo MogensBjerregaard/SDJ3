@@ -10,16 +10,11 @@ package tier2.webserver;
 /**
  *  GetProductsResponse bean class
  */
-@SuppressWarnings({"unchecked", "rawtypes",
+@SuppressWarnings({"unchecked",
     "unused"
 })
 public class GetProductsResponse implements org.apache.axis2.databinding.ADBBean {
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-	public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName("http://webserver.tier2",
+    public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName("http://webserver.tier2",
             "getProductsResponse", "ns2");
 
     /**

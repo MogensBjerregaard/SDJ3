@@ -10,7 +10,7 @@ package common.xsd;
 /**
  *  CarPart bean class
  */
-@SuppressWarnings({"rawtypes",
+@SuppressWarnings({"unchecked",
     "unused"
 })
 public class CarPart implements org.apache.axis2.databinding.ADBBean {
@@ -21,11 +21,6 @@ public class CarPart implements org.apache.axis2.databinding.ADBBean {
      */
 
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-	/**
      * field for Car
      */
     protected common.xsd.Car localCar;

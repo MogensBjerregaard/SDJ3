@@ -7,6 +7,8 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import common.Car;
@@ -23,21 +25,27 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	private static final String registryName = "BusinessServer";
 	private LinkedBlockingQueue<Car> dismantlingQueue;
 	private LinkedBlockingQueue<CarPart> carPartQueue;
+	private LinkedBlockingQueue<Product> productQueue;
 	private ArrayList<Pallet> palletQueue;
 	private ArrayList<ISubscriber> carQueueSubscribers;
 	private ArrayList<ISubscriber> carPartQueueSubscribers;
 	private ArrayList<ISubscriber> palletQueueSubscribers;
+	private ArrayList<ISubscriber> productQueueSubscribers;
 	private int palletRegistrationNumberCount;
-
+	private int productRegistrationNumberCount;
+	
 	public BusinessServerController(IDataServer dataServer) throws RemoteException{
 		this.dataServer = dataServer;
 		this.view = new BusinessServerView();
 		this.dismantlingQueue = new LinkedBlockingQueue<>();
 		this.carPartQueue = new LinkedBlockingQueue<>();
+		this.productQueue = new LinkedBlockingQueue<>();
 		this.carQueueSubscribers = new ArrayList<>();
 		this.carPartQueueSubscribers = new ArrayList<>();
 		this.palletQueueSubscribers = new ArrayList<>();
+		this.productQueueSubscribers = new ArrayList<>();
 		this.palletRegistrationNumberCount = 0;
+		this.productRegistrationNumberCount = 0;
 		this.palletQueue = new ArrayList<>();
 		this.bindToRegistry();
 		this.initiateSystem();
@@ -64,7 +72,8 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 			this.updateView("Registry naming rebind using '"+registryName+"' successful");
 			this.updateView(registryName+" is running");
 			this.palletRegistrationNumberCount = this.dataServer.getNextPalletRegistrationNumber();
-			//dataServer.initiateQueues() //load data from DB to businessServer on startup
+			this.productRegistrationNumberCount = this.dataServer.getNextProductRegistrationNumber();
+			dataServer.initiateQueues(); //load data from DB to businessServer on startup
 		} catch (RemoteException e) {
 			System.out.println("Failed connecting to DataServer"+e.getMessage());
 		}
@@ -97,8 +106,9 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	}
 	@Override
 	public void packageProduct(Product product) throws RemoteException {
-		// TODO Auto-generated method stub
-
+		dataServer.insertProduct(product);
+		productQueue.add(product);
+		updateProductQueueSubscribers();
 	}
 	@Override
 	public void subscribeToCarQueue(ISubscriber subscriber) throws RemoteException {
@@ -114,6 +124,11 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	public void subscribeToPalletsQueue(ISubscriber subscriber) throws RemoteException {
 		this.palletQueueSubscribers.add(subscriber);
 		this.updatePalletQueueSubscribers();
+	}
+	@Override
+	public void subscribeToProductsQueue(ISubscriber subscriber) throws RemoteException {
+		this.productQueueSubscribers.add(subscriber);
+		this.updateProductQueueSubscribers();
 	}
 	private void updateCarQueueSubscribers() {
 		String message = new String();
@@ -169,7 +184,19 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 					}
 				}
 	}
-	
+	private void updateProductQueueSubscribers() {
+		String message = new String();
+		for (Product product : productQueue) {
+			message+=product.toString()+"\n";
+		}
+		for (ISubscriber subscriber : productQueueSubscribers) {
+			try {
+				subscriber.updateProductsList(message);
+			} catch (Exception e) {
+				productQueueSubscribers.remove(subscriber);
+			}
+		}
+}
 	//takes selected car part types from car part queue and place them on pallets. fills 1 pallet until max weight or until empty of car part
 	@Override
 	public void generatePallets(String carPartType) throws RemoteException {
@@ -194,6 +221,49 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 		}
 		updateCarPartQueueSubscribers();
 		updatePalletQueueSubscribers();
+	}
+	@Override
+	public int getCarpartTypeQuantity(Integer value, String carPartType) {
+		int quantity = 0;
+		for (Pallet pallet : palletQueue) {
+			for (CarPart carPart : pallet.getParts()) {
+				if (carPart.getType().equals(carPartType)) {
+					quantity++;
+				}
+			}
+		}
+		return quantity;
+	}
+	@Override
+	public int getNextProductRegistrationNumber() {
+		return productRegistrationNumberCount++;
+	}
+	@Override
+	public HashMap<CarPart, Pallet> getNextCarPartFromPallet(String carPartType) throws RemoteException {
+		HashMap<CarPart, Pallet> result = dataServer.getNextCarPartFromPallet(carPartType);
+		for (Entry<CarPart, common.Pallet> pair : result.entrySet())
+		{
+			Pallet pallet = pair.getValue();
+			CarPart carPart = pair.getKey();
+			
+		 	if (pallet.getParts().size()==0) {
+		 		for (Pallet queuedPallet : palletQueue) {
+					if(queuedPallet.getRegistrationNumber()==pallet.getRegistrationNumber()) {
+						palletQueue.remove(queuedPallet);
+						break;
+					}
+				}
+			}
+		 	for (CarPart queuedCarPart : carPartQueue) {
+				if(queuedCarPart.getRegistrationNumber().equals(carPart.getRegistrationNumber())) {
+					carPartQueue.remove(queuedCarPart);
+				}
+			}
+		
+		}
+		updateCarPartQueueSubscribers();
+		updatePalletQueueSubscribers();
+		return result;
 	}
 
 }

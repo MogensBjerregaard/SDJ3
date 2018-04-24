@@ -10,7 +10,9 @@ package tier2.webserver;
 /**
  *  ExtensionMapper class
  */
-
+@SuppressWarnings({"unchecked",
+    "unused"
+})
 public class ExtensionMapper {
     public static java.lang.Object getTypeObject(
         java.lang.String namespaceURI, java.lang.String typeName,

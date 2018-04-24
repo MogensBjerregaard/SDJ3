@@ -36,5 +36,7 @@ public class Product implements Serializable{
 	public String getProductType() {
 		return productType; 
 	}
-	
+	public String toString() {
+		return "#"+registrationNumber+" "+productType+" "+parts.size()+" pcs";
+	}
 }

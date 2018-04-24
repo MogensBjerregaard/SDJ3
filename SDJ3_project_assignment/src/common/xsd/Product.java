@@ -10,7 +10,7 @@ package common.xsd;
 /**
  *  Product bean class
  */
-@SuppressWarnings({"unchecked", "rawtypes",
+@SuppressWarnings({"unchecked",
     "unused"
 })
 public class Product implements org.apache.axis2.databinding.ADBBean {
@@ -20,9 +20,7 @@ public class Product implements org.apache.axis2.databinding.ADBBean {
        Namespace Prefix = ns1
      */
 
-	private static final long serialVersionUID = 1L;
-
-	/**
+    /**
      * field for PalletReferences
      * This was an Array!
      */
