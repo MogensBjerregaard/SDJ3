@@ -8,6 +8,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -16,6 +17,7 @@ import common.CarPart;
 import common.ISubscriber;
 import common.Pallet;
 import common.Product;
+import common.Subject;
 import tier3.IDataServer;
 
 public class BusinessServerController extends UnicastRemoteObject implements IBusinessServer {
@@ -27,12 +29,9 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	private LinkedBlockingQueue<CarPart> carPartQueue;
 	private LinkedBlockingQueue<Product> productQueue;
 	private ArrayList<Pallet> palletQueue;
-	private ArrayList<ISubscriber> carQueueSubscribers;
-	private ArrayList<ISubscriber> carPartQueueSubscribers;
-	private ArrayList<ISubscriber> palletQueueSubscribers;
-	private ArrayList<ISubscriber> productQueueSubscribers;
 	private int palletRegistrationNumberCount;
 	private int productRegistrationNumberCount;
+	private HashMap<Subject, HashSet<ISubscriber>> subscriberMap;
 	
 	public BusinessServerController(IDataServer dataServer) throws RemoteException{
 		this.dataServer = dataServer;
@@ -40,13 +39,10 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 		this.dismantlingQueue = new LinkedBlockingQueue<>();
 		this.carPartQueue = new LinkedBlockingQueue<>();
 		this.productQueue = new LinkedBlockingQueue<>();
-		this.carQueueSubscribers = new ArrayList<>();
-		this.carPartQueueSubscribers = new ArrayList<>();
-		this.palletQueueSubscribers = new ArrayList<>();
-		this.productQueueSubscribers = new ArrayList<>();
+		this.palletQueue = new ArrayList<>();
 		this.palletRegistrationNumberCount = 0;
 		this.productRegistrationNumberCount = 0;
-		this.palletQueue = new ArrayList<>();
+		this.subscriberMap = new HashMap<>();
 		this.bindToRegistry();
 		this.initiateSystem();
 	}
@@ -83,7 +79,7 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 		Car car = new Car(chassisNumber, weight, model);
 		this.dismantlingQueue.add(car);
 		this.dataServer.insertCar(car);
-		this.updateCarQueueSubscribers();
+		publish(getCarList(), Subject.CARS);
 		this.updateView("Enqueued car: "+model+"("+chassisNumber+") "+weight+"kg");
 	}
 	@Override
@@ -93,7 +89,7 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 		}
 		Car car = this.dismantlingQueue.remove();
 		this.dataServer.deleteCarFromQueue(car);
-		this.updateCarQueueSubscribers();
+		publish(getCarList(), Subject.CARS);
 		this.updateView("Dequeued car: "+car.getModel()+"("+car.getChassisNumber()+") "+car.getWeight()+"kg");
 		return car;
 	}
@@ -101,50 +97,33 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	public void registerCarPart(CarPart carPart) throws RemoteException {
 		this.dataServer.insertCarPart(carPart);
 		this.carPartQueue.add(carPart);
-		this.updateCarPartQueueSubscribers();
-		this.updateView("Registered carpart: "+carPart.getType()+"("+carPart.getRegistrationNumber()+"), "+carPart.getWeight()+"kg, from "+carPart.getCar().getModel()+"("+carPart.getCar().getChassisNumber()+")");
+		publish(getCarPartList(), Subject.CARPARTS);
+		this.updateView("Registered carpart: "+carPart.toString());
 	}
 	@Override
 	public void packageProduct(Product product) throws RemoteException {
 		dataServer.insertProduct(product);
 		productQueue.add(product);
-		updateProductQueueSubscribers();
+		publish(getProductList(), Subject.PRODUCTS);
 	}
 	@Override
-	public void subscribeToCarQueue(ISubscriber subscriber) throws RemoteException {
-		this.carQueueSubscribers.add(subscriber);
-		this.updateCarQueueSubscribers();
-	}
-	@Override
-	public void subscribeToCarPartsQueue(ISubscriber subscriber) throws RemoteException {
-		this.carPartQueueSubscribers.add(subscriber);
-		this.updateCarPartQueueSubscribers();
-	}
-	@Override
-	public void subscribeToPalletsQueue(ISubscriber subscriber) throws RemoteException {
-		this.palletQueueSubscribers.add(subscriber);
-		this.updatePalletQueueSubscribers();
-	}
-	@Override
-	public void subscribeToProductsQueue(ISubscriber subscriber) throws RemoteException {
-		this.productQueueSubscribers.add(subscriber);
-		this.updateProductQueueSubscribers();
-	}
-	private void updateCarQueueSubscribers() {
-		String message = new String();
-		for (Car car : this.dismantlingQueue) {
-			message+=car.getModel()+"("+car.getChassisNumber()+")\n";
-		}
-		for (ISubscriber subscriber : this.carQueueSubscribers) {
-			try {
-				subscriber.updateEnqueuedCarList(message);
-			} catch (Exception e) {
-				this.carQueueSubscribers.remove(subscriber);
-			}
+	public void subscribe(ISubscriber subscriber, Subject... subjects) {
+		for (Subject subject : subjects) {
+			if (!subscriberMap.containsKey(subject)) {
+				subscriberMap.put(subject, new HashSet<ISubscriber>());
+			}				
+			subscriberMap.get(subject).add(subscriber);			
 		}
 	}
-	private void updateCarPartQueueSubscribers() {
-		String message = new String();
+	
+	public void publish(String subjectList, Subject subject) throws RemoteException {
+		for (ISubscriber subscriber : subscriberMap.get(subject)) {
+			subscriber.updateSubscriber(subjectList, subject);
+		}
+
+	}
+	private String getCarPartList() {
+		String subjectList = new String();
 		int wheelCount=0, doorCount=0, seatCount=0, engineCount=0, steeringCount=0;
 		for (CarPart carPart : this.carPartQueue) {
 			switch (carPart.getType()) {
@@ -162,41 +141,31 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 				break;
 			}
 		}
-		message = "Wheel: "+wheelCount+"pcs\nDoors: "+doorCount+"pcs\nSeat: "+seatCount+"pcs\nEngine: "+engineCount+"pcs\nStWheel: "+steeringCount+"pcs";
-		for (ISubscriber subscriber : this.carPartQueueSubscribers) {
-			try {
-				subscriber.updateCarPartsList(message);
-			} catch (Exception e) {
-				this.carPartQueueSubscribers.remove(subscriber);
-			}
+		subjectList = "Wheel: "+wheelCount+"pcs\nDoors: "+doorCount+"pcs\nSeat: "+seatCount+"pcs\nEngine: "+engineCount+"pcs\nStWheel: "+steeringCount+"pcs";
+		return subjectList;
+	}
+	private String getPalletList() {
+		String subjectList = new String();
+		for (Pallet pallet : palletQueue) {
+			subjectList+=pallet.toString()+"\n";
 		}
+		return subjectList;
 	}
-	private void updatePalletQueueSubscribers() {
-				String message = new String();
-				for (Pallet pallet : palletQueue) {
-					message+=pallet.toString()+"\n";
-				}
-				for (ISubscriber subscriber : palletQueueSubscribers) {
-					try {
-						subscriber.updatePalletsList(message);
-					} catch (Exception e) {
-						palletQueueSubscribers.remove(subscriber);
-					}
-				}
+	private String getCarList() {
+		String subjectList = new String();
+		for (Car car : this.dismantlingQueue) {
+			subjectList+=car.getModel()+"("+car.getChassisNumber()+")\n";
+		}
+		return subjectList;
 	}
-	private void updateProductQueueSubscribers() {
-		String message = new String();
+	private String getProductList() {
+		String subjectList = new String();
 		for (Product product : productQueue) {
-			message+=product.toString()+"\n";
+			subjectList+=product.toString()+"\n";
 		}
-		for (ISubscriber subscriber : productQueueSubscribers) {
-			try {
-				subscriber.updateProductsList(message);
-			} catch (Exception e) {
-				productQueueSubscribers.remove(subscriber);
-			}
-		}
-}
+		return subjectList;
+	}
+
 	//takes selected car part types from car part queue and place them on pallets. fills 1 pallet until max weight or until empty of car part
 	@Override
 	public void generatePallets(String carPartType) throws RemoteException {
@@ -219,8 +188,8 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 			this.palletQueue.add(pallet);
 			this.dataServer.insertPallet(pallet);
 		}
-		updateCarPartQueueSubscribers();
-		updatePalletQueueSubscribers();
+		publish(getCarPartList(), Subject.CARPARTS);
+		publish(getPalletList(), Subject.PALLETS);
 	}
 	@Override
 	public int getCarpartTypeQuantity(Integer value, String carPartType) {
@@ -261,8 +230,9 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 			}
 		
 		}
-		updateCarPartQueueSubscribers();
-		updatePalletQueueSubscribers();
+		publish(getCarPartList(), Subject.CARPARTS);
+		publish(getPalletList(), Subject.PALLETS);	
+
 		return result;
 	}
 

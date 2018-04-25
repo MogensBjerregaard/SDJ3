@@ -7,6 +7,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 import common.ISubscriber;
+import common.Subject;
 import tier2.businessserver.BusinessServerController;
 import tier2.businessserver.IBusinessServer;
 
@@ -22,7 +23,7 @@ public class Station1Controller extends UnicastRemoteObject implements ISubscrib
 		this.view = new Station1View(this);
 		this.view.setVisible(true);
 		bindToRegistry();
-		businessServer.subscribeToCarQueue(this);
+		businessServer.subscribe(this, Subject.CARS);
 		businessServer.updateView(registryName+" connected");
 	}
 	public void inputCar(String chassisNumber, double weight, String model) {
@@ -40,25 +41,11 @@ public class Station1Controller extends UnicastRemoteObject implements ISubscrib
 			System.out.println("Error binding "+registryName+" to registry.\nCheck if the Business Server is running and restart "+registryName+"\n"+e.getMessage());
 		}	
 	}
-
 	@Override
-	public void updateEnqueuedCarList(String message) throws RemoteException {
-		view.updateEnqueuedCarsList(message);
-		
-	}
-	@Override
-	public void updateCarPartsList(String message) throws RemoteException {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void updatePalletsList(String message) throws RemoteException {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void updateProductsList(String message) throws RemoteException {
-		// TODO Auto-generated method stub
+	public void updateSubscriber(String subjectList, Subject subject) throws RemoteException {
+		if (subject.equals(Subject.CARS)) {
+			view.updateEnqueuedCarsList(subjectList);
+		}
 		
 	}
 

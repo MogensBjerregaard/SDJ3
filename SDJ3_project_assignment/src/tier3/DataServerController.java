@@ -26,7 +26,6 @@ public class DataServerController extends UnicastRemoteObject implements IDataSe
 	public DataServerController() throws RemoteException{
 		this.view = new DataServerView();
 		bindToRegistry();
-		updateView("Registry naming rebind using '"+registryName+"' successful");
 		updateView(registryName+" is running");
 	}
 	
@@ -43,6 +42,7 @@ public class DataServerController extends UnicastRemoteObject implements IDataSe
 		try {
 			LocateRegistry.createRegistry(1099);
 			Naming.rebind(registryName, this);
+			updateView("Registry naming rebind using '"+registryName+"' successful");
 		} catch (RemoteException | MalformedURLException e) {
 			System.out.println("Error initiating RMI -\n"+e.getMessage());
 		}	
@@ -103,7 +103,7 @@ public class DataServerController extends UnicastRemoteObject implements IDataSe
 		ArrayList<Product> matchingProducts = new ArrayList<>();
 	
 		//for testing - remove before release 
-		if (chassisNumber.equals("1234")) {
+		if (chassisNumber.equals(chassisNumber)) {
 			
 			common.Product productDummy1= new common.Product(323, "Wheelset");
 			common.Pallet pallet1 = new common.Pallet("Wheel", 500);

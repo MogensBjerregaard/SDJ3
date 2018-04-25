@@ -27,5 +27,7 @@ public class CarPart implements Serializable{
 	public String getType() {
 		return this.type;
 	}
-
+	public String toString() {
+		return type+"("+registrationNumber+"), "+weight+"kg, from "+car.getModel()+"("+car.getChassisNumber()+")";
+	}
 }

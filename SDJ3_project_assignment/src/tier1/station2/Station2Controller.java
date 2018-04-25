@@ -9,6 +9,7 @@ import java.rmi.server.UnicastRemoteObject;
 import common.Car;
 import common.CarPart;
 import common.ISubscriber;
+import common.Subject;
 import tier2.businessserver.BusinessServerController;
 import tier2.businessserver.IBusinessServer;
 
@@ -24,9 +25,7 @@ public class Station2Controller extends UnicastRemoteObject implements ISubscrib
 		this.view = new Station2View(this);
 		this.view.setVisible(true);
 		this.bindToRegistry();
-		this.businessServer.subscribeToCarQueue(this);
-		this.businessServer.subscribeToCarPartsQueue(this);
-		this.businessServer.subscribeToPalletsQueue(this);
+		this.businessServer.subscribe(this, Subject.CARS, Subject.CARPARTS, Subject.PALLETS);
 		this.businessServer.updateView(registryName+" connected");
 	}
 	private void bindToRegistry(){
@@ -36,19 +35,13 @@ public class Station2Controller extends UnicastRemoteObject implements ISubscrib
 			System.out.println("Error binding "+registryName+" to registry.\nCheck if the Business Server is running and restart "+registryName+"\n"+e.getMessage());
 		}
 	}
+	@Override
+	public void updateSubscriber(String subjectList, Subject subject) throws RemoteException {
+		if (subject.equals(Subject.CARS)) view.updateEnqueuedCarsList(subjectList);
+		if (subject.equals(Subject.CARPARTS)) view.updateCarPartsList(subjectList);
+		if (subject.equals(Subject.PALLETS)) view.updatePalletsList(subjectList);
+	}
 
-	@Override
-	public void updateEnqueuedCarList(String message) throws RemoteException {
-		view.updateEnqueuedCarsList(message);
-	}
-	@Override
-	public void updateCarPartsList(String message) throws RemoteException {
-		view.updateCarPartsList(message);
-	}
-	@Override
-	public void updatePalletsList(String message) throws RemoteException {
-		view.updatePalletsList(message);
-	}
 	public void dequeueCar() {
 		try {
 			Car car = businessServer.dequeueCar();
@@ -71,11 +64,6 @@ public class Station2Controller extends UnicastRemoteObject implements ISubscrib
 		} catch (RemoteException e) {
 			view.notifyUserError("Error generating pallets on business server");
 		}
-	}
-	@Override
-	public void updateProductsList(String message) throws RemoteException {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

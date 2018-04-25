@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import common.CarPart;
 import common.ISubscriber;
 import common.Product;
+import common.Subject;
 import tier2.businessserver.BusinessServerController;
 import tier2.businessserver.IBusinessServer;
 
@@ -27,8 +28,7 @@ public class Station3Controller extends UnicastRemoteObject implements ISubscrib
 		this.view = new Station3View(this);
 		this.view.setVisible(true);
 		this.bindToRegistry();
-		this.businessServer.subscribeToPalletsQueue(this);
-		this.businessServer.subscribeToProductsQueue(this);
+		this.businessServer.subscribe(this, Subject.PALLETS, Subject.PRODUCTS);
 		this.businessServer.updateView(registryName+" connected");
 	}
 	private void bindToRegistry(){
@@ -39,25 +39,11 @@ public class Station3Controller extends UnicastRemoteObject implements ISubscrib
 		}
 	}
 	@Override
-	public void updateEnqueuedCarList(String message) throws RemoteException {
-		// TODO Auto-generated method stub
-		
+	public void updateSubscriber(String subjectList, Subject subject) throws RemoteException {
+		if (subject.equals(Subject.PALLETS)) view.updatePalletsList(subjectList);
+		if (subject.equals(Subject.PRODUCTS)) view.updateProductsList(subjectList);
 	}
 
-	@Override
-	public void updateCarPartsList(String message) throws RemoteException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void updatePalletsList(String message) throws RemoteException {
-		view.updatePalletsList(message);
-	}
-	@Override
-	public void updateProductsList(String message) throws RemoteException {
-		view.updateProductsList(message);
-	}
 	public int checkCarpartTypeQuantity(Integer value, String carPartType) {
 		try {
 			return businessServer.getCarpartTypeQuantity(value, carPartType);
