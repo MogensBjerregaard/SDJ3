@@ -22,9 +22,9 @@ public class WebserverController {
 	private WebserverController() {
 		try {
 			dataServer = (IDataServer) Naming.lookup("rmi://localhost/"+dataServerName);
-			dataServer.updateView(registryName+" connected");
+//			dataServer.updateView(registryName+" connected");
 		} catch (MalformedURLException | RemoteException | NotBoundException e) {
-			System.out.println("Error connecting DataServer to WebServiceSkeleton\n"+ e.getMessage());
+			System.out.println("Error connecting Main to WebServiceSkeleton\n"+ e.getMessage());
 		}
 		this.view = WebserverView.getInstance();
 		WebserverController.updateView("Connected to "+dataServerName); 

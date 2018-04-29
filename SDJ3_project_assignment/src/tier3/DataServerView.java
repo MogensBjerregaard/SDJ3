@@ -6,7 +6,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 
-public class DataServerView extends JFrame {
+public class DataServerView extends JFrame implements IDataServerView {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
@@ -36,7 +36,7 @@ public class DataServerView extends JFrame {
 		scrollPane.setBounds(10, 10, 570, 250);
 		contentPane.add(scrollPane);
 	}
-	public void updateTextArea(String message) {
+	public void update(String message) {
 		textArea.setText(textArea.getText()+message+"\n");
 	}
 }
