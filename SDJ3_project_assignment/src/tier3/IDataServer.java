@@ -1,5 +1,7 @@
 package tier3;
 
+import common.Car;
+import common.CarPart;
 import common.Product;
 
 import java.rmi.Remote;
@@ -30,5 +32,9 @@ public interface IDataServer extends Remote {
 	void initiateQueues()
 			throws RemoteException;
 	ArrayList<Product> getMatchingProducts(String carChassisNumber)
+			throws RemoteException;
+	List<Car> getNondismantledCars()
+			throws RemoteException;
+	List<CarPart> getUnusedCarParts()
 			throws RemoteException;
 }

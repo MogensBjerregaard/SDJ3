@@ -43,8 +43,10 @@ public class Car implements Serializable{
 
 	@Override
 	public String toString() {
-		return "chassisnumber=" + chassisNumber
-				+ ", weight=" + weight
-				+ ", model=" + model;
+		return "class=" + this.getClass().getSimpleName() +
+				", chassisNumber=" + chassisNumber +
+				", weight=" + weight +
+				", model=" + model +
+				", dismantled=" + isDismantled;
 	}
 }

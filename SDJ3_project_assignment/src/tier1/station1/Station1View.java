@@ -152,7 +152,7 @@ public class Station1View extends JFrame {
 		textArea.setText(message);
 	}
 	private static void loadProperties(){
-		try (InputStream in = new FileInputStream("./station1.properties")){
+		try (InputStream in = new FileInputStream("C:\\ScriptsSemester4\\SDJ3\\Project\\SDJ3_project_assignment\\station1.properties")){
 			properties = new Properties();
 			properties.load(in);
 		} catch (FileNotFoundException e) {

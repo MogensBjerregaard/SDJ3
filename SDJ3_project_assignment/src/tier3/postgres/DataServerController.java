@@ -1,5 +1,7 @@
 package tier3.postgres;
 
+import common.Car;
+import common.CarPart;
 import common.Product;
 import org.postgresql.Driver;
 import tier3.DataServerView;
@@ -12,6 +14,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 public class DataServerController extends UnicastRemoteObject implements IDataServer {
 	private String jdbcUrl;
@@ -125,7 +128,7 @@ public class DataServerController extends UnicastRemoteObject implements IDataSe
 			IDataAccessObject<T> dataAccessObject =
 					daoFactory.getDataAccessObject(objectType, connection);
 			int result = dataAccessObject.getNextPrimaryKey();
-			view.update("Next PK requested for: " + objectType.getSimpleName());
+			view.update("Next value in sequence requested for: " + objectType.getSimpleName());
 			return result;
 		} catch (SQLException e) {
 			throw new RemoteException(e.getMessage(), e);
@@ -152,6 +155,52 @@ public class DataServerController extends UnicastRemoteObject implements IDataSe
 			}
 			view.update("Products traced for: " + carChassisNumber);
 			return products;
+		} catch (SQLException e) {
+			throw new RemoteException(e.getMessage(), e);
+		}
+	}
+
+	@Override
+	public List<Car> getNondismantledCars() throws RemoteException {
+		try (Connection connection = getConnection()) {
+			String sql = "SELECT * FROM car WHERE dismantled=false";
+			PreparedStatement statement = connection.prepareStatement(sql);
+			ResultSet resultSet = statement.executeQuery();
+			ArrayList<Car> nondismantledCars = new ArrayList<>();
+			while (resultSet.next()) {
+				String chassisNumber = resultSet.getString("chassis_number");
+				double weight = resultSet.getDouble("weight");
+				String model = resultSet.getString("model");
+				boolean dismantled = resultSet.getBoolean("dismantled");
+				nondismantledCars.add(new Car(chassisNumber, weight, model, dismantled));
+			}
+			return nondismantledCars;
+		} catch (SQLException e) {
+			throw new RemoteException(e.getMessage(), e);
+		}
+	}
+
+	@Override
+	public List<CarPart> getUnusedCarParts() throws RemoteException {
+		try (Connection connection = getConnection()) {
+			String sql = "SELECT * FROM car_part JOIN car ON (car_part.car_chassis_number=car.chassis_number) WHERE pallet_registration_number is null AND product_registration_number is null";
+			PreparedStatement statement = connection.prepareStatement(sql);
+			ResultSet resultSet = statement.executeQuery();
+			ArrayList<CarPart> unusedCarParts = new ArrayList<>();
+			while (resultSet.next()) {
+				String carChassisNumber = resultSet.getString("chassis_number");
+				double carWeight = resultSet.getDouble("weight");
+				String carModel = resultSet.getString("model");
+				boolean carIsDismantled = resultSet.getBoolean("dismantled");
+				Car car = new Car(carChassisNumber, carWeight, carModel, carIsDismantled);
+
+				String registrationNumber = resultSet.getString("registration_number");
+				String type = resultSet.getString("type");
+				double weight = resultSet.getDouble("weight");
+				String model = resultSet.getString("model");
+				unusedCarParts.add(new CarPart(registrationNumber, car, type, weight));
+			}
+			return null;
 		} catch (SQLException e) {
 			throw new RemoteException(e.getMessage(), e);
 		}

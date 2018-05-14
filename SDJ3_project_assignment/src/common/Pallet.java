@@ -39,6 +39,14 @@ public class Pallet implements Serializable{
 		this.maxWeight = maxWeight;
 	}
 
+	public Pallet(int registrationNumber, String typeOfPart, double maxWeight) {
+		super();
+		this.registrationNumber = registrationNumber;
+		this.parts = new ArrayList<>();
+		this.typeOfPart = typeOfPart;
+		this.maxWeight = maxWeight;
+	}
+
 	public void setRegistrationNumber(int registrationNumber) {
 		this.registrationNumber = registrationNumber;
 	}
@@ -47,9 +55,21 @@ public class Pallet implements Serializable{
 		parts.add(part);
 	}
 
+	public CarPart getNextCarPart() {
+		if (parts.size() > 0) {
+			return parts.remove(0);
+		}
+		else {
+			throw new IllegalStateException("Pallet is empty");
+		}
+	}
+
 	@Override
 	public String toString() {
-		if(typeOfPart.equals("Steeringwheel")) return "#"+registrationNumber+": StWheel "+parts.size()+"p";
-		return "#"+registrationNumber+": "+typeOfPart+" "+parts.size()+"p";
+		return "class=" + this.getClass().getSimpleName() + ", " +
+				"registrationNumber=" + registrationNumber + ", " +
+				"typeOfParts=" + typeOfPart + ", " +
+				"maxWeight=" + maxWeight + ", " +
+				"unitsStored=" + getParts().size();
 	}
 }

@@ -8,6 +8,7 @@ public class CarPart implements Serializable{
 	private Car car;
 	private double weight;
 	private String type;
+
 	public CarPart(String registrationNumber, Car car, String type, double weight) {
 		super();
 		this.registrationNumber = registrationNumber;
@@ -28,6 +29,10 @@ public class CarPart implements Serializable{
 		return this.type;
 	}
 	public String toString() {
-		return type+"("+registrationNumber+"), "+weight+"kg, from "+car.getModel()+"("+car.getChassisNumber()+")";
+		return "class=" + this.getClass().getSimpleName() + ", " +
+				"registrationNumber=" + registrationNumber + ", " +
+				"type=" + type + ", " +
+				"weight=" + weight + ", " +
+				"carChassisNumber=" + getCar().getChassisNumber();
 	}
 }

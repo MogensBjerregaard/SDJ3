@@ -26,19 +26,6 @@ public class DAOFactory implements IDataAccessObjectFactory {
 		} else {
 			throw new SQLException("Class does not exist as entity in database");
 		}
-
-//		switch (className) {
-//			case "Car":
-//				return new CarDAO(connection);
-//			case "CarPart":
-//				return new CarPartDAO(connection);
-//			case "Pallet":
-//				return new PalletDAO(connection);
-//			case "Product":
-//				return new ProductDAO(connection);
-//			default:
-//				throw new SQLException("Class does not exist as entity in database");
-//		}
 	}
 
 	@Override

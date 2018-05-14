@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import common.Car;
@@ -24,7 +25,7 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 //	private BusinessServerView view;
 //	private IDataServerOLD dataServer;
 //	private static final String registryName = "BusinessServer";
-//	private LinkedBlockingQueue<Car> dismantlingQueue;
+//	private LinkedBlockingQueue<Car> carDismantlingQueue;
 //	private LinkedBlockingQueue<CarPart> carPartQueue;
 //	private LinkedBlockingQueue<Product> productQueue;
 //	private ArrayList<Pallet> palletQueue;
@@ -35,7 +36,7 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 //	public BusinessServerController(IDataServerOLD dataServer) throws RemoteException{
 //		this.dataServer = dataServer;
 //		this.view = new BusinessServerView();
-//		this.dismantlingQueue = new LinkedBlockingQueue<>();
+//		this.carDismantlingQueue = new LinkedBlockingQueue<>();
 //		this.carPartQueue = new LinkedBlockingQueue<>();
 //		this.productQueue = new LinkedBlockingQueue<>();
 //		this.palletQueue = new ArrayList<>();
@@ -76,17 +77,17 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 //	@Override
 //	public void enqueueCar(String chassisNumber, double weight, String model) throws RemoteException {
 //		Car car = new Car(chassisNumber, weight, model);
-//		this.dismantlingQueue.add(car);
+//		this.carDismantlingQueue.add(car);
 //		this.dataServer.insertCar(car);
 //		publish(getCarList(), Subject.CARS);
 //		this.updateView("Enqueued car: "+model+"("+chassisNumber+") "+weight+"kg");
 //	}
 //	@Override
 //	public Car dequeueCar() throws RemoteException {
-//		if (this.dismantlingQueue.isEmpty()) {
+//		if (this.carDismantlingQueue.isEmpty()) {
 //			throw new RemoteException();
 //		}
-//		Car car = this.dismantlingQueue.remove();
+//		Car car = this.carDismantlingQueue.remove();
 ////		this.dataServer.deleteCarFromQueue(car);
 //		publish(getCarList(), Subject.CARS);
 //		this.updateView("Dequeued car: "+car.getModel()+"("+car.getChassisNumber()+") "+car.getWeight()+"kg");
@@ -152,7 +153,7 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 //	}
 //	private String getCarList() {
 //		String subjectList = new String();
-//		for (Car car : this.dismantlingQueue) {
+//		for (Car car : this.carDismantlingQueue) {
 //			subjectList+=car.getModel()+"("+car.getChassisNumber()+")\n";
 //		}
 //		return subjectList;
@@ -239,7 +240,7 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	private BusinessServerView view;
 	private IDataServer dataServer;
 	private static final String registryName = "BusinessServer";
-	private LinkedBlockingQueue<Car> dismantlingQueue;
+	private LinkedBlockingQueue<Car> carDismantlingQueue;
 	private LinkedBlockingQueue<CarPart> carPartQueue;
 	private LinkedBlockingQueue<Product> productQueue;
 	private ArrayList<Pallet> palletQueue;
@@ -247,10 +248,15 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	private int productRegistrationNumberCount;
 	private HashMap<Subject, HashSet<ISubscriber>> subscriberMap;
 
+	private List<Car> carList;
+	private List<CarPart> carPartList;
+	private List<Pallet> palletList;
+	private List<Product> productList;
+
 	public BusinessServerController(IDataServer dataServer) throws RemoteException{
 		this.dataServer = dataServer;
 		this.view = new BusinessServerView();
-		this.dismantlingQueue = new LinkedBlockingQueue<>();
+		this.carDismantlingQueue = new LinkedBlockingQueue<>();
 		this.carPartQueue = new LinkedBlockingQueue<>();
 		this.productQueue = new LinkedBlockingQueue<>();
 		this.palletQueue = new ArrayList<>();
@@ -283,25 +289,69 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 			updateView(registryName+" is running");
 			palletRegistrationNumberCount = dataServer.getNextPrimaryKey(Pallet.class);
 			productRegistrationNumberCount = dataServer.getNextPrimaryKey(Product.class);
-			dataServer.initiateQueues(); //load data from DB to businessServer on startup
+//			dataServer.initiateQueues(); //load data from DB to businessServer on startup
+			loadData();
+			initiateQueues();
 		} catch (RemoteException e) {
 			System.out.println("Failed connecting to Main"+e.getMessage());
 		}
 	}
+
+	private void loadData() {
+		try {
+			carList = dataServer.readAll(Car.class);
+			carPartList = dataServer.readAll(CarPart.class);
+			palletList = dataServer.readAll(Pallet.class);
+			productList = dataServer.readAll(Product.class);
+		} catch (RemoteException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	private void initiateQueues() {
+		try {
+			initiateNondismantledCars();
+			initiateAvailableCarParts();
+
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	private void initiateNondismantledCars() {
+		for (Car car : carList) {
+			if (!car.isDismantled()) {
+				carDismantlingQueue.add(car);
+			}
+		}
+	}
+
+	private void initiateAvailableCarParts() {
+		// adds all parts and then removes those stored on a pallet
+		for (CarPart carPart : carPartList) {
+			carPartQueue.add(carPart);
+		}
+		for (Pallet pallet : palletList) {
+			for (CarPart carPart : pallet.getParts()) {
+				carPartQueue.remove(carPart);
+			}
+		}
+	}
+
 	@Override
 	public void enqueueCar(String chassisNumber, double weight, String model) throws RemoteException {
 		Car car = new Car(chassisNumber, weight, model);
-		dismantlingQueue.add(car);
+		carDismantlingQueue.add(car);
 		dataServer.create(car);
 		publish(getCarList(), Subject.CARS);
 		updateView("Enqueued car: "+model+"("+chassisNumber+") "+weight+"kg");
 	}
 	@Override
 	public Car dequeueCar() throws RemoteException {
-		if (dismantlingQueue.isEmpty()) {
+		if (carDismantlingQueue.isEmpty()) {
 			throw new RemoteException();
 		}
-		Car car = dismantlingQueue.remove();
+		Car car = carDismantlingQueue.remove();
 		car.setAsDismantled();
 		dataServer.update(car);
 //		this.dataServer.deleteCarFromQueue(car);
@@ -369,7 +419,7 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	}
 	private String getCarList() {
 		String subjectList = new String();
-		for (Car car : this.dismantlingQueue) {
+		for (Car car : this.carDismantlingQueue) {
 			subjectList+=car.getModel()+"("+car.getChassisNumber()+")\n";
 		}
 		return subjectList;

@@ -209,7 +209,7 @@ public class Station3View extends JFrame{
 			if (carPartQuantityInStock == 0) {
 				notifyUserError("There is no "+ carPartType+ " in stock.");
 			}else {
-				notifyUserError("There is only "+carPartQuantityInStock+" "+ carPartType+ " in stock.");				
+				notifyUserError("There is only "+carPartQuantityInStock+" "+ carPartType+ " in stock.");
 			}
 		}
 	}
