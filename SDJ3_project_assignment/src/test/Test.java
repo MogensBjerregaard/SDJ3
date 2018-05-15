@@ -5,8 +5,8 @@ import java.rmi.NotBoundException;
 
 public class Test {
 
-	public static void main(String[] args) throws MalformedURLException, NotBoundException, InterruptedException {
-
+	public static void main(String[] args)
+			throws MalformedURLException, NotBoundException, InterruptedException {
 		tier3.Main.main(null);
 		tier2.businessserver.Main.main(null);
 		tier2.webserver.Main.main(null);

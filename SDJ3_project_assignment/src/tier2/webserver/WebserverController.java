@@ -19,6 +19,7 @@ public class WebserverController {
 	private IDataServer dataServer;
 	private static final String registryName = "Webserver";
 	private static final String dataServerName = "DataServer";
+
 	private WebserverController() {
 		try {
 			dataServer = (IDataServer) Naming.lookup("rmi://localhost/"+dataServerName);
@@ -30,16 +31,20 @@ public class WebserverController {
 		WebserverController.updateView("Connected to "+dataServerName); 
 		WebserverController.updateView(registryName+" is running");
 	}
+
 	private static class Wrapper{
 		static WebserverController instance = new WebserverController();
 	}
+
 	public static WebserverController getInstance() {
 		return Wrapper.instance;
 	}
+
 	private static void updateView(String message) {
 		LocalDateTime timePoint = LocalDateTime.now();
 		WebserverView.updateTextArea(timePoint+": "+message);
 	}
+
 	public Product[] getMatchingProducts(String chassisNumber) {
 		updateView("Tracking system requesting products for chassisnumber "+chassisNumber);
 		ArrayList<common.Product> productsMatching;
@@ -83,7 +88,6 @@ public class WebserverController {
 			return productsConverted;
 		} else {
 			return new common.xsd.Product[0];
- 
 		}
 	}
 }

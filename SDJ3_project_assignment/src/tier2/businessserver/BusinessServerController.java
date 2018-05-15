@@ -39,7 +39,8 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	private List<Pallet> palletList;
 	private List<Product> productList;
 
-	public BusinessServerController(IDataServer dataServer) throws RemoteException {
+	public BusinessServerController(IDataServer dataServer)
+			throws RemoteException {
 		this.dataServer = dataServer;
 		this.view = new BusinessServerView();
 		this.carDismantlingQueue = new LinkedBlockingQueue<>();
@@ -53,7 +54,8 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 		this.initiateSystem();
 	}
 
-	public static IBusinessServer getRemoteObject() throws MalformedURLException, RemoteException, NotBoundException {
+	public static IBusinessServer getRemoteObject()
+			throws MalformedURLException, RemoteException, NotBoundException {
 		return (IBusinessServer) Naming.lookup("rmi://localhost/" + registryName);
 	}
 
@@ -71,7 +73,8 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 		}
 	}
 
-	private void initiateSystem() throws RemoteException {
+	private void initiateSystem()
+			throws RemoteException {
 		try {
 			message("Connected to Main");
 			message("Registry naming rebind using '" + registryName + "' successful");
@@ -151,7 +154,8 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	}
 
 	@Override
-	public synchronized void registerCarForDismantling(Car car) throws RemoteException {
+	public synchronized void registerCarForDismantling(Car car)
+			throws RemoteException {
 		dataServer.create(car);
 		carDismantlingQueue.add(car);
 		publish(getCarList(), Subject.CARS);
@@ -159,7 +163,8 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	}
 
 	@Override
-	public synchronized Car getNextCarToBeDismantled() throws RemoteException {
+	public synchronized Car getNextCarToBeDismantled()
+			throws RemoteException {
 		if (carDismantlingQueue.isEmpty()) {
 			throw new RemoteException("dismantling queue is empty");
 		}
@@ -172,7 +177,8 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	}
 
 	@Override
-	public synchronized void registerCarPart(CarPart carPart) throws RemoteException {
+	public synchronized void registerCarPart(CarPart carPart)
+			throws RemoteException {
 		dataServer.create(carPart);
 		carPartQueue.add(carPart);
 		publish(getCarPartList(), Subject.CARPARTS);
@@ -180,7 +186,8 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	}
 
 	@Override
-	public synchronized void packageProduct(Product product) throws RemoteException {
+	public synchronized void packageProduct(Product product)
+			throws RemoteException {
 		for (Pallet pallet : product.getPalletReferences()) {
 			System.out.println(pallet);
 		}
@@ -191,7 +198,8 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	}
 
 	@Override
-	public synchronized void subscribe(ISubscriber subscriber, Subject... subjects) throws RemoteException {
+	public synchronized void subscribe(ISubscriber subscriber, Subject... subjects)
+			throws RemoteException {
 		for (Subject subject : subjects) {
 			if (!subscriberMap.containsKey(subject)) {
 				subscriberMap.put(subject, new HashSet<>());
@@ -201,7 +209,8 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 		}
 	}
 
-	private synchronized void publish(String subjectList, Subject subject) throws RemoteException {
+	private synchronized void publish(String subjectList, Subject subject)
+			throws RemoteException {
 		for (ISubscriber subscriber : subscriberMap.get(subject)) {
 			new Thread(new Runnable() {
 				@Override
@@ -273,7 +282,8 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 
 	//takes selected car part types from car part queue and place them on pallets. fills 1 pallet until max weight or until empty of car part
 	@Override
-	public synchronized void generatePallets(String carPartType) throws RemoteException {
+	public synchronized void generatePallets(String carPartType)
+			throws RemoteException {
 		Pallet pallet = new Pallet(carPartType);
 		for (CarPart carPart : this.carPartQueue) {
 			if (carPart.getType().equals(carPartType)) {
@@ -308,12 +318,14 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	}
 
 	@Override
-	public synchronized int getNextProductRegistrationNumber() throws RemoteException {
+	public synchronized int getNextProductRegistrationNumber()
+			throws RemoteException {
 		return dataServer.getNextPrimaryKey(Product.class);
 	}
 
 	@Override
-	public synchronized CarPart pickCarPart(String carPartType) throws RemoteException {
+	public synchronized CarPart pickCarPart(String carPartType)
+			throws RemoteException {
 		for (Pallet pallet : palletQueue) {
 			if (pallet.getTypeOfPart().equals(carPartType)) {
 					CarPart carPart = pallet.getNextCarPart();

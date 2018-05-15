@@ -20,11 +20,12 @@ public class CarRegistrationClientController extends UnicastRemoteObject impleme
 
 	private static final long serialVersionUID = 1L;
 	private CarRegistrationClientView view;
-	private static final String registryName = "Main";
+	private static final String registryName = "CarRegistrationClient";
 	private IBusinessServer businessServer;
 	private Properties properties;
 	
-	public CarRegistrationClientController(IBusinessServer businessServer) throws RemoteException, MalformedURLException, NotBoundException{
+	public CarRegistrationClientController(IBusinessServer businessServer)
+			throws RemoteException, MalformedURLException, NotBoundException{
 		this.businessServer = businessServer;
 		this.view = new CarRegistrationClientView(this);
 		this.view.setVisible(true);
@@ -33,6 +34,7 @@ public class CarRegistrationClientController extends UnicastRemoteObject impleme
 		businessServer.subscribe(this, Subject.CARS);
 		businessServer.message(registryName+" connected");
 	}
+
 	public void inputCar(String chassisNumber, double weight, String model) {
 		try {
 			Car car = new Car(chassisNumber, weight, model);
@@ -50,12 +52,13 @@ public class CarRegistrationClientController extends UnicastRemoteObject impleme
 			System.out.println("Error binding "+registryName+" to registry.\nCheck if the Business Server is running and restart "+registryName+"\n"+e.getMessage());
 		}	
 	}
+
 	@Override
-	public void updateSubscriber(String message, Subject subject) throws RemoteException {
+	public void updateSubscriber(String message, Subject subject)
+			throws RemoteException {
 		if (subject.equals(Subject.CARS)) {
 			view.updateEnqueuedCarsList(message);
 		}
-		
 	}
 
 	private void loadProperties(){

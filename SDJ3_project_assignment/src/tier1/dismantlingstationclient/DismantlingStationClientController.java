@@ -16,10 +16,11 @@ public class DismantlingStationClientController extends UnicastRemoteObject impl
 
 	private static final long serialVersionUID = 1L;
 	private DismantlingStationClientView view;
-	private static final String registryName = "Main";
+	private static final String registryName = "DismantlingStationClient";
 	private IBusinessServer businessServer;
 	
-	public DismantlingStationClientController(IBusinessServer businessServer) throws RemoteException, MalformedURLException, NotBoundException {
+	public DismantlingStationClientController(IBusinessServer businessServer)
+			throws RemoteException, MalformedURLException, NotBoundException {
 		this.businessServer = businessServer;
 		this.view = new DismantlingStationClientView(this);
 		this.view.setVisible(true);
@@ -37,7 +38,8 @@ public class DismantlingStationClientController extends UnicastRemoteObject impl
 	}
 
 	@Override
-	public void updateSubscriber(String message, Subject subject) throws RemoteException {
+	public void updateSubscriber(String message, Subject subject)
+			throws RemoteException {
 		if (subject.equals(Subject.CARS)) view.updateEnqueuedCarsList(message);
 		if (subject.equals(Subject.CARPARTS)) view.updateCarPartsList(message);
 		if (subject.equals(Subject.PALLETS)) view.updatePalletsList(message);
@@ -51,6 +53,7 @@ public class DismantlingStationClientController extends UnicastRemoteObject impl
 			this.view.notifyUserError("Unable to dequeue car");
 		}
 	}
+
 	public void inputCarPart(Car loadedCar, String registrationNumber, String partType, double partWeight) {
 		CarPart carPart = new CarPart(registrationNumber, loadedCar, partType, partWeight);
 		try {
@@ -67,5 +70,4 @@ public class DismantlingStationClientController extends UnicastRemoteObject impl
 			view.notifyUserError("Error generating pallets on business server");
 		}
 	}
-
 }

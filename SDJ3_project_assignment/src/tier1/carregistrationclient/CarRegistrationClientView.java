@@ -137,11 +137,13 @@ public class CarRegistrationClientView extends JFrame {
 		}
 		return true;
 	}
+
 	public void notifyUserError(String message) {
 		JOptionPane.showMessageDialog(null,
 				message,
 				properties.getProperty("Error"), JOptionPane.ERROR_MESSAGE);
 	}
+
 	public void notifyUserSucces(String message) {
 		JOptionPane.showMessageDialog(null,
 				message,

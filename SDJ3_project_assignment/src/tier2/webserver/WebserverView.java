@@ -15,12 +15,15 @@ public class WebserverView extends JFrame{
 		setResizable(false);
 		initiateComponents();
 	}
+
 	private static class Wrapper{
 		static WebserverView instance = new WebserverView();
 	}
+
 	public static WebserverView getInstance() {
 		return Wrapper.instance;
 	}
+
 	private void initiateComponents() {
 		this.setVisible(true);
 		setTitle("Webserver - Tier 2");
@@ -41,6 +44,7 @@ public class WebserverView extends JFrame{
 		scrollPane.setBounds(10, 10, 570, 250);
 		contentPane.add(scrollPane);
 	}
+
 	public static void updateTextArea(String message) {
 		textArea.setText(textArea.getText()+message+"\n");
 	}

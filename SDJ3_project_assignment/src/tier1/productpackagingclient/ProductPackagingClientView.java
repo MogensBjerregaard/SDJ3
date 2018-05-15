@@ -128,6 +128,7 @@ public class ProductPackagingClientView extends JFrame{
 
 
 	}
+
 	private void createEvents() {
 		this.spinnerWheel.addChangeListener(arg0 -> {
 			checkSpinnerValue(this.spinnerWheel, "Wheel");
@@ -178,6 +179,7 @@ public class ProductPackagingClientView extends JFrame{
 		if ((Integer)spinnerWheel.getValue()>0) return true;
 		return false;
 	}
+
 	private void resetValues() {
 		spinnerDoor.setValue(0);
 		spinnerEngine.setValue(0);
@@ -185,11 +187,13 @@ public class ProductPackagingClientView extends JFrame{
 		spinnerSteering.setValue(0);
 		spinnerWheel.setValue(0);
 	}
+
 	public void notifyUserError(String message) {
 		JOptionPane.showMessageDialog(null,
 				message,
 				properties.getProperty("Error"), JOptionPane.ERROR_MESSAGE);
 	}
+
 	private void notifyUserSucces(String message) {
 		JOptionPane.showMessageDialog(null,
 				message,
@@ -213,6 +217,7 @@ public class ProductPackagingClientView extends JFrame{
 			}
 		}
 	}
+
 	public void updatePalletsList(String message) {
 		this.textAreaPallets.setText(message);
 	}

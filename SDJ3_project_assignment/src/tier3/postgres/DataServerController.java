@@ -12,6 +12,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -57,9 +58,9 @@ public class DataServerController extends UnicastRemoteObject implements IDataSe
 			IDataAccessObject<T> dataAccessObject =
 					daoFactory.getDataAccessObject(object, connection);
 			dataAccessObject.create(object);
-			view.update("Inserted: " + object.toString());
+			message("Inserted: " + object.toString());
 		} catch (SQLException e) {
-			view.update("EXCEPTION:\n" + e.getLocalizedMessage());
+			message("EXCEPTION:\n" + e.getLocalizedMessage());
 			throw new RemoteException(e.getMessage());
 		}
 	}
@@ -71,10 +72,10 @@ public class DataServerController extends UnicastRemoteObject implements IDataSe
 			IDataAccessObject<T> dataAccessObject =
 					daoFactory.getDataAccessObject(classOfObject, connection);
 			T result = dataAccessObject.read(primaryKey);
-			view.update("Read: " + result.toString());
+			message("Read: " + result.toString());
 			return result;
 		} catch (SQLException e) {
-			view.update("EXCEPTION:\n" + e.getLocalizedMessage());
+			message("EXCEPTION:\n" + e.getLocalizedMessage());
 			throw new RemoteException(e.getMessage(), e);
 		}
 	}
@@ -86,10 +87,10 @@ public class DataServerController extends UnicastRemoteObject implements IDataSe
 			IDataAccessObject<T> dataAccessObject =
 					daoFactory.getDataAccessObject(classOfObject, connection);
 			List<T> result = dataAccessObject.readAll();
-			view.update("Read All: " + classOfObject.getSimpleName());
+			message("Read All: " + classOfObject.getSimpleName());
 			return result;
 		} catch (SQLException e) {
-			view.update("EXCEPTION:\n" + e.getLocalizedMessage());
+			message("EXCEPTION:\n" + e.getLocalizedMessage());
 			throw new RemoteException(e.getMessage(), e);
 		}
 	}
@@ -101,9 +102,9 @@ public class DataServerController extends UnicastRemoteObject implements IDataSe
 			IDataAccessObject<T> dataAccessObject =
 					daoFactory.getDataAccessObject(object, connection);
 			dataAccessObject.update(object);
-			view.update("Updated: " + object.toString());
+			message("Updated: " + object.toString());
 		} catch (SQLException e) {
-			view.update("EXCEPTION:\n" + e.getLocalizedMessage());
+			message("EXCEPTION:\n" + e.getLocalizedMessage());
 			throw new RemoteException(e.getMessage(), e);
 		}
 	}
@@ -115,9 +116,9 @@ public class DataServerController extends UnicastRemoteObject implements IDataSe
 			IDataAccessObject<T> dataAccessObject =
 					daoFactory.getDataAccessObject(object, connection);
 			dataAccessObject.delete(object);
-			view.update("Deleted: " + object.toString());
+			message("Deleted: " + object.toString());
 		} catch (SQLException e) {
-			view.update("EXCEPTION:\n" + e.getLocalizedMessage());
+			message("EXCEPTION:\n" + e.getLocalizedMessage());
 			throw new RemoteException(e.getMessage(), e);
 		}
 	}
@@ -129,9 +130,9 @@ public class DataServerController extends UnicastRemoteObject implements IDataSe
 			IDataAccessObject<T> dataAccessObject =
 					daoFactory.getDataAccessObject(classOfObject, connection);
 			dataAccessObject.delete(primaryKey);
-			view.update("Deleted: " + primaryKey + " from " + classOfObject.getSimpleName());
+			message("Deleted: " + primaryKey + " from " + classOfObject.getSimpleName());
 		} catch (SQLException e) {
-			view.update("EXCEPTION:\n" + e.getLocalizedMessage());
+			message("EXCEPTION:\n" + e.getLocalizedMessage());
 			throw new RemoteException(e.getMessage(), e);
 		}
 	}
@@ -143,10 +144,10 @@ public class DataServerController extends UnicastRemoteObject implements IDataSe
 			IDataAccessObject<T> dataAccessObject =
 					daoFactory.getDataAccessObject(classOfObject, connection);
 			int result = dataAccessObject.getNextPrimaryKey();
-			view.update("Next value in sequence requested for: " + classOfObject.getSimpleName());
+			message("Next value in sequence requested for: " + classOfObject.getSimpleName());
 			return result;
 		} catch (SQLException e) {
-			view.update("EXCEPTION:\n" + e.getLocalizedMessage());
+			message("EXCEPTION:\n" + e.getLocalizedMessage());
 			throw new RemoteException(e.getMessage(), e);
 		}
 	}
@@ -165,11 +166,16 @@ public class DataServerController extends UnicastRemoteObject implements IDataSe
 				String productType = resultSet.getString("product_type");
 				products.add(new Product(registrationNumber, productType));
 			}
-			view.update("Products traced for: " + carChassisNumber);
+			message("Products traced for: " + carChassisNumber);
 			return products;
 		} catch (SQLException e) {
-			view.update("EXCEPTION:\n" + e.getLocalizedMessage());
+			message("EXCEPTION:\n" + e.getLocalizedMessage());
 			throw new RemoteException(e.getMessage(), e);
 		}
+	}
+
+	private void message(String message) {
+		LocalDateTime timePoint = LocalDateTime.now();
+		view.update(timePoint + ": " + message);
 	}
 }

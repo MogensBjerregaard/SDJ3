@@ -69,6 +69,7 @@ public class DismantlingStationClientView extends JFrame{
 		this.initComponents();
 		this.createEvents();
 	}
+
 	private void initComponents() {
 		this.setResizable(false);
 		this.setTitle("Dismantling Station Client - Tier 1");
@@ -210,6 +211,7 @@ public class DismantlingStationClientView extends JFrame{
 		this.btnGeneratePallets.setBounds(417, 223, 177, 27);
 		this.contentPane.add(this.btnGeneratePallets);
 	}
+
 	private void createEvents() {
 		this.btnDequeueCar.addActionListener(arg0 -> {
 			this.controller.dequeueCar();
@@ -253,6 +255,7 @@ public class DismantlingStationClientView extends JFrame{
 		});
 
 	}
+
 	private boolean inputIsValid() {
 		if(this.textFieldWheel.getText().equals("")) {
 			this.notifyUserError("Input wheel weight");
@@ -316,31 +319,38 @@ public class DismantlingStationClientView extends JFrame{
 		}
 		return true;
 	}
+
 	public void notifyUserError(String message) {
 		JOptionPane.showMessageDialog(null,
 				message,
 				properties.getProperty("Error"), JOptionPane.ERROR_MESSAGE);
 	}
+
 	private void notifyUserSucces(String message) {
 		JOptionPane.showMessageDialog(null,
 				message,
 				properties.getProperty("Succes_headline"), JOptionPane.PLAIN_MESSAGE);
 	}
+
 	public void updateEnqueuedCarsList(String message) {
 		this.textAreaEnqueued.setText(message);
 	}
+
 	public void updateCarPartsList(String message) {
 		this.textAreaCarParts.setText(message);
 	}
+
 	public void updatePalletsList(String message) {
 		this.textAreaPallets.setText(message);
 	}
+
 	public void loadDequeuedCar(Car dequeuedCar) {
 		this.lblCarToBeDismantled.setText(dequeuedCar.getModel()+", "+dequeuedCar.getChassisNumber());
 		this.loadedCar = dequeuedCar;
 		this.btnDequeueCar.setEnabled(false);
 		this.btnWeigh.setEnabled(true);
 	}
+
 	private static void loadProperties(){
 		try (InputStream in = new FileInputStream("C:\\ScriptsSemester4\\SDJ3\\Project\\SDJ3_project_assignment\\dismantlingstationclient.properties")){
 			properties = new Properties();
@@ -350,6 +360,5 @@ public class DismantlingStationClientView extends JFrame{
 		} catch (IOException e) {
 			System.out.println("Error reading Station 2 properties file"+ e.getMessage());
 		}
-
 	}
 }

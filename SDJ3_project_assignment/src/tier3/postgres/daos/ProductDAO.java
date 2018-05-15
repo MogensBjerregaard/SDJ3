@@ -127,13 +127,6 @@ public class ProductDAO implements IDataAccessObject<Product> {
 			String carPartRegistrationNumber = carPartResultSet.getString("registration_number");
 			CarPart nextCarPart = new CarPartDAO(connection).read(carPartRegistrationNumber);
 			product.addPart(nextCarPart);
-
-			// if the part is stored on a pallet, that pallet is referenced in the product
-//			String palletRegistrationNumber = carPartResultSet.getString("pallet_registration_number");
-//			if (palletRegistrationNumber != null) {
-//				Pallet pallet = new PalletDAO(connection).read(palletRegistrationNumber);
-//				product.addPalletReference(pallet);
-//			}
 		}
 
 		// fetches all pallet references for the product
