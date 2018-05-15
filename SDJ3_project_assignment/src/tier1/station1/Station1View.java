@@ -103,7 +103,6 @@ public class Station1View extends JFrame {
 		this.btnEnqueueCar.addActionListener(arg0 -> {
 			if (this.inputIsValid()) {
 				this.controller.inputCar(this.chassisNumber, this.weight, this.model);
-				this.notifyUserSucces(properties.getProperty("Succes_message"));
 				this.textFieldWeight.setText("");
 				this.textFieldChassisNumber.setText("");
 				this.comboBoxCarModels.setSelectedIndex(0);
@@ -143,14 +142,16 @@ public class Station1View extends JFrame {
 				message,
 				properties.getProperty("Error"), JOptionPane.ERROR_MESSAGE);
 	}
-	private void notifyUserSucces(String message) {
+	public void notifyUserSucces(String message) {
 		JOptionPane.showMessageDialog(null,
 				message,
 				 properties.getProperty("Succes_headline"), JOptionPane.PLAIN_MESSAGE);
 	}
+
 	public void updateEnqueuedCarsList(String message) {
 		textArea.setText(message);
 	}
+
 	private static void loadProperties(){
 		try (InputStream in = new FileInputStream("C:\\ScriptsSemester4\\SDJ3\\Project\\SDJ3_project_assignment\\station1.properties")){
 			properties = new Properties();
@@ -160,6 +161,5 @@ public class Station1View extends JFrame {
 		} catch (IOException e) {
 			System.out.println("Error reading Station 1 properties file"+ e.getMessage());
 		}
-
 	}
 }

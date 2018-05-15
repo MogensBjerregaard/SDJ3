@@ -120,7 +120,7 @@ public class PalletDAO implements IDataAccessObject<Pallet> {
 		CarPartDAO carPartDAO = new CarPartDAO(connection);
 		while (carPartResultSet.next()) {
 			String carPartRegistrationNumber = carPartResultSet.getString("registration_number");
-			pallet.addParts(carPartDAO.read(carPartRegistrationNumber));
+			pallet.addPart(carPartDAO.read(carPartRegistrationNumber));
 		}
 
 		return pallet;

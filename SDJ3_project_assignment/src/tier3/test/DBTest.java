@@ -24,7 +24,7 @@ public class DBTest {
 //			CarPart carPart = new CarPart("3321331", car01, "Wheel", 540);
 //			CarPart carPart02 = new CarPart("444", car01, "Seat", 500);
 //			Pallet pallet = new Pallet("Wheel", 5000);
-//			pallet.addParts(carPart);
+//			pallet.addPart(carPart);
 //			Product product = new Product(9999, "Mixed Parts");
 //			ArrayList<CarPart> parts = new ArrayList<>();
 //			parts.add(carPart);
@@ -49,9 +49,9 @@ public class DBTest {
 //			dataServer.create(carPart03);
 //
 //			Pallet pallet = new Pallet("test", 3000);
-//			pallet.addParts(carPart01);
-//			pallet.addParts(carPart02);
-//			pallet.addParts(carPart03);
+//			pallet.addPart(carPart01);
+//			pallet.addPart(carPart02);
+//			pallet.addPart(carPart03);
 //			dataServer.create(pallet);
 //
 			Product product = new Product(9999, "testType");

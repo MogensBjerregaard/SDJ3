@@ -10,10 +10,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
 
-import common.CarPart;
-import common.ISubscriber;
-import common.Product;
-import common.Subject;
+import common.*;
+import javafx.util.Pair;
 import tier2.businessserver.BusinessServerController;
 import tier2.businessserver.IBusinessServer;
 
@@ -23,8 +21,8 @@ public class Station3Controller extends UnicastRemoteObject implements ISubscrib
 	private static final String registryName = "Station3";
 	private IBusinessServer businessServer;
 	
-	public Station3Controller()throws RemoteException, MalformedURLException, NotBoundException {
-		this.businessServer = BusinessServerController.getRemoteObject();
+	public Station3Controller(IBusinessServer businessServer) throws RemoteException, MalformedURLException, NotBoundException {
+		this.businessServer = businessServer;
 		this.view = new Station3View(this);
 		this.view.setVisible(true);
 		this.bindToRegistry();
@@ -39,9 +37,9 @@ public class Station3Controller extends UnicastRemoteObject implements ISubscrib
 		}
 	}
 	@Override
-	public void updateSubscriber(String subjectList, Subject subject) throws RemoteException {
-		if (subject.equals(Subject.PALLETS)) view.updatePalletsList(subjectList);
-		if (subject.equals(Subject.PRODUCTS)) view.updateProductsList(subjectList);
+	public void updateSubscriber(String message, Subject subject) throws RemoteException {
+		if (subject.equals(Subject.PALLETS)) view.updatePalletsList(message);
+		if (subject.equals(Subject.PRODUCTS)) view.updateProductsList(message);
 	}
 
 	public int checkCarpartTypeQuantity(Integer value, String carPartType) {
@@ -53,24 +51,41 @@ public class Station3Controller extends UnicastRemoteObject implements ISubscrib
 		}
 	}
 	public void generateNewProduct(HashMap<String, Integer> carPartTypeAndQuantity) throws RemoteException {
+		// pallets from which the parts came
 		HashSet<common.Pallet> palletReferences = new HashSet<>();
+
+		// parts chosen for product
 		ArrayList<CarPart> carParts = new ArrayList<>();
+
 		HashSet<String> carPartTypesContained = new HashSet<>();
+
+		// fetches necessary parts
 		for (Entry<String, Integer> entry : carPartTypeAndQuantity.entrySet()) {
 		    String carPartType = entry.getKey();
 		    Integer quantity = entry.getValue();
-		    if(quantity>0) {
+
+		    if (quantity > 0) {
+
 		    	carPartTypesContained.add(carPartType);
-		    	for (int i=0; i<quantity; i++) {
-		    		HashMap<CarPart, common.Pallet> carPartAndPalletReference= businessServer.getNextCarPartFromPallet(carPartType);
-		    		for (Entry<CarPart, common.Pallet> pair : carPartAndPalletReference.entrySet())
-		    		{
-		    		  palletReferences.add(pair.getValue());
-		    		  carParts.add(pair.getKey());
-		    		}
+
+		    	for (int i = 0; i < quantity; i++) {
+
+		    		// GET NEXT CAR PART FROM WHATEVER PALLET
+					CarPart carPart = businessServer.pickCarPart(carPartType);
+					carParts.add(carPart);
+					palletReferences.add(carPart.getPalletReference());
+
+//		    		HashMap<CarPart, common.Pallet> carPartAndPalletReference= businessServer.getNextCarPartFromPallet(carPartType);
+//		    		for (Entry<CarPart, common.Pallet> pair : carPartAndPalletReference.entrySet())
+//		    		{
+//		    		  palletReferences.add(pair.getValue());
+//		    		  carParts.add(pair.getKey());
+//		    		}
 		    	}
 		    }
 		}
+
+
 		//Creating name from combined carpart type names
 		String productType = "";
 		for (String type : carPartTypesContained) {

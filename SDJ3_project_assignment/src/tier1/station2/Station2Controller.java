@@ -20,8 +20,8 @@ public class Station2Controller extends UnicastRemoteObject implements ISubscrib
 	private static final String registryName = "Station2";
 	private IBusinessServer businessServer;
 	
-	public Station2Controller()throws RemoteException, MalformedURLException, NotBoundException {
-		this.businessServer = BusinessServerController.getRemoteObject();
+	public Station2Controller(IBusinessServer businessServer) throws RemoteException, MalformedURLException, NotBoundException {
+		this.businessServer = businessServer;
 		this.view = new Station2View(this);
 		this.view.setVisible(true);
 		this.bindToRegistry();
@@ -36,10 +36,10 @@ public class Station2Controller extends UnicastRemoteObject implements ISubscrib
 		}
 	}
 	@Override
-	public void updateSubscriber(String subjectList, Subject subject) throws RemoteException {
-		if (subject.equals(Subject.CARS)) view.updateEnqueuedCarsList(subjectList);
-		if (subject.equals(Subject.CARPARTS)) view.updateCarPartsList(subjectList);
-		if (subject.equals(Subject.PALLETS)) view.updatePalletsList(subjectList);
+	public void updateSubscriber(String message, Subject subject) throws RemoteException {
+		if (subject.equals(Subject.CARS)) view.updateEnqueuedCarsList(message);
+		if (subject.equals(Subject.CARPARTS)) view.updateCarPartsList(message);
+		if (subject.equals(Subject.PALLETS)) view.updatePalletsList(message);
 	}
 
 	public void dequeueCar() {
@@ -58,6 +58,7 @@ public class Station2Controller extends UnicastRemoteObject implements ISubscrib
 			System.out.println("Station 2 - failed creating new carpart on business server");
 		}
 	}
+
 	public void generatePallets(String carPartType) {
 		try {
 			businessServer.generatePallets(carPartType);

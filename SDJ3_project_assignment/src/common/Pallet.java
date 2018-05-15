@@ -11,6 +11,8 @@ public class Pallet implements Serializable{
 	private String typeOfPart;
 	private double maxWeight;
 
+	private final double DEFAULT_MAX_WEIGHT = 500;
+
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
@@ -31,8 +33,14 @@ public class Pallet implements Serializable{
 		return maxWeight;
 	}
 
+	public Pallet(String typeOfPart) {
+		this.registrationNumber = 0;
+		this.parts = new ArrayList<>();
+		this.typeOfPart = typeOfPart;
+		this.maxWeight = DEFAULT_MAX_WEIGHT;
+	}
+
 	public Pallet(String typeOfPart, double maxWeight) {
-		super();
 		this.registrationNumber = 0;
 		this.parts = new ArrayList<>();
 		this.typeOfPart = typeOfPart;
@@ -40,7 +48,6 @@ public class Pallet implements Serializable{
 	}
 
 	public Pallet(int registrationNumber, String typeOfPart, double maxWeight) {
-		super();
 		this.registrationNumber = registrationNumber;
 		this.parts = new ArrayList<>();
 		this.typeOfPart = typeOfPart;
@@ -51,8 +58,18 @@ public class Pallet implements Serializable{
 		this.registrationNumber = registrationNumber;
 	}
 
-	public void addParts(CarPart part) {
-		parts.add(part);
+	public void addPart(CarPart part) throws IllegalArgumentException {
+		int currentWeight = 0;
+		for (CarPart carPart : parts) {
+			currentWeight += carPart.getWeight();
+		}
+		if (currentWeight + part.getWeight() < maxWeight) {
+			parts.add(part);
+			part.setPalletReference(this);
+		}
+		else {
+			throw new IllegalArgumentException("cannot add part to pallet - max weight exceeded");
+		}
 	}
 
 	public CarPart getNextCarPart() {
@@ -62,6 +79,16 @@ public class Pallet implements Serializable{
 		else {
 			throw new IllegalStateException("Pallet is empty");
 		}
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Pallet)) {
+			return false;
+		}
+
+		Pallet other = (Pallet) obj;
+		return this.getRegistrationNumber() == other.getRegistrationNumber();
 	}
 
 	@Override

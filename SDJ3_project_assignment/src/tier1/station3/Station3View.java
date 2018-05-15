@@ -218,7 +218,7 @@ public class Station3View extends JFrame{
 	}
 
 	private static void loadProperties(){
-		try (InputStream in = new FileInputStream("./station3.properties")){
+		try (InputStream in = new FileInputStream("C:\\ScriptsSemester4\\SDJ3\\Project\\SDJ3_project_assignment\\station3.properties")){
 			properties = new Properties();
 			properties.load(in);
 		} catch (FileNotFoundException e) {

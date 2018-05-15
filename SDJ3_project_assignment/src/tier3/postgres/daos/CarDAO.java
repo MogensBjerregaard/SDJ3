@@ -19,13 +19,20 @@ public class CarDAO implements IDataAccessObject<Car> {
 
 	@Override
 	public void create(Car object) throws SQLException {
-		String sql = "INSERT INTO car (chassis_number, weight, model, dismantled) values (?,?,?,?)";
-		PreparedStatement statement = connection.prepareStatement(sql);
-		statement.setObject(1, object.getChassisNumber());
-		statement.setObject(2, object.getWeight());
-		statement.setObject(3, object.getModel());
-		statement.setObject(4, object.isDismantled());
-		statement.execute();
+		try {
+			String sql = "INSERT INTO car (chassis_number, weight, model, dismantled) values (?,?,?,?)";
+			PreparedStatement statement = connection.prepareStatement(sql);
+			statement.setObject(1, object.getChassisNumber());
+			statement.setObject(2, object.getWeight());
+			statement.setObject(3, object.getModel());
+			statement.setObject(4, object.isDismantled());
+			statement.execute();
+		}
+		catch (SQLException e) {
+			if (e.getSQLState().equals("23505")) {
+				throw new SQLException("cannot insert car, duplicate key: " + object.getChassisNumber());
+			}
+		}
 	}
 
 	@Override

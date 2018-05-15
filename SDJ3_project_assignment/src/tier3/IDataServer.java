@@ -15,9 +15,9 @@ public interface IDataServer extends Remote {
 	// Generics methods to be used with any class.
 	<T> void create(T object)
 			throws RemoteException;
-	<T> T read(Class<T> objectType, String primaryKey)
+	<T> T read(Class<T> classOfObject, String primaryKey)
 			throws RemoteException;
-	<T> List<T> readAll(Class<T> objectType)
+	<T> List<T> readAll(Class<T> classOfObject	)
 			throws RemoteException;
 	<T> void update(T object)
 			throws RemoteException;
@@ -28,13 +28,7 @@ public interface IDataServer extends Remote {
 	<T> int getNextPrimaryKey(Class<T> objectType)
 			throws RemoteException;
 
-	// Special queries.
-	void initiateQueues()
-			throws RemoteException;
+	// Query to be used by web server.
 	ArrayList<Product> getMatchingProducts(String carChassisNumber)
-			throws RemoteException;
-	List<Car> getNondismantledCars()
-			throws RemoteException;
-	List<CarPart> getUnusedCarParts()
 			throws RemoteException;
 }

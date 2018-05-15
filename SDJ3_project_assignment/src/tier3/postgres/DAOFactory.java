@@ -14,17 +14,19 @@ import java.sql.SQLException;
 
 public class DAOFactory implements IDataAccessObjectFactory {
 	@Override
-	public IDataAccessObject getDataAccessObject(String className, Connection connection) throws SQLException {
-		if (className.equals(Car.class.getSimpleName())) {
-			return new CarDAO(connection);
-		} else if (className.equals(CarPart.class.getSimpleName())) {
-			return new CarPartDAO(connection);
-		} else if (className.equals(Pallet.class.getSimpleName())) {
-			return new PalletDAO(connection);
-		} else if (className.equals(Product.class.getSimpleName())) {
-			return new ProductDAO(connection);
-		} else {
-			throw new SQLException("Class does not exist as entity in database");
+	public IDataAccessObject getDataAccessObject(String className, Connection connection)
+			throws SQLException {
+		switch (className) {
+			case "Car":
+				return new CarDAO(connection);
+			case "CarPart":
+				return new CarPartDAO(connection);
+			case "Pallet":
+				return new PalletDAO(connection);
+			case "Product":
+				return new ProductDAO(connection);
+			default:
+				throw new SQLException("Class does not exist as entity in database");
 		}
 	}
 
