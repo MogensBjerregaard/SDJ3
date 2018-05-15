@@ -20,7 +20,7 @@ public class CarRegistrationClientController extends UnicastRemoteObject impleme
 
 	private static final long serialVersionUID = 1L;
 	private CarRegistrationClientView view;
-	private static final String registryName = "Station1";
+	private static final String registryName = "Main";
 	private IBusinessServer businessServer;
 	private Properties properties;
 	

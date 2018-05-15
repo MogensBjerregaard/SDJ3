@@ -23,7 +23,7 @@ public class WebserverView extends JFrame{
 	}
 	private void initiateComponents() {
 		this.setVisible(true);
-		setTitle("Webserver Tier 2");
+		setTitle("Webserver - Tier 2");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(650, 350, 600, 300);
 		contentPane = new JPanel();

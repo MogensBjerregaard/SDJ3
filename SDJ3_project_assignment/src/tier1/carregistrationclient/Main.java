@@ -1,17 +1,18 @@
-package tier1.productpackagingclient;
+package tier1.carregistrationclient;
 
 import tier2.businessserver.BusinessServerController;
 
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-public class Station3 {
+
+public class Main {
 
 	public static void main(String[] args) {
 		try {
-			new ProductPackagingClientController(BusinessServerController.getRemoteObject());
+			new CarRegistrationClientController(BusinessServerController.getRemoteObject());
 		} catch (RemoteException | MalformedURLException | NotBoundException e) {
-			System.out.println("Error starting Station 3 \n"+e.getMessage());
+			System.out.println("Error starting Station 1 \n"+e.getMessage());
 		}
 
 	}

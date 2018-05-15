@@ -16,7 +16,7 @@ public class DismantlingStationClientController extends UnicastRemoteObject impl
 
 	private static final long serialVersionUID = 1L;
 	private DismantlingStationClientView view;
-	private static final String registryName = "Station2";
+	private static final String registryName = "Main";
 	private IBusinessServer businessServer;
 	
 	public DismantlingStationClientController(IBusinessServer businessServer) throws RemoteException, MalformedURLException, NotBoundException {

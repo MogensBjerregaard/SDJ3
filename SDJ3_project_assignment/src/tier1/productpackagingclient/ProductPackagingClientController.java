@@ -16,7 +16,7 @@ import tier2.businessserver.IBusinessServer;
 public class ProductPackagingClientController extends UnicastRemoteObject implements ISubscriber {
 	private static final long serialVersionUID = 1L;
 	private ProductPackagingClientView view;
-	private static final String registryName = "Station3";
+	private static final String registryName = "Main";
 	private IBusinessServer businessServer;
 	
 	public ProductPackagingClientController(IBusinessServer businessServer) throws RemoteException, MalformedURLException, NotBoundException {
