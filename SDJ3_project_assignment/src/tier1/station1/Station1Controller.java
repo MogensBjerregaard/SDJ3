@@ -14,7 +14,6 @@ import java.util.Properties;
 import common.Car;
 import common.ISubscriber;
 import common.Subject;
-import tier2.businessserver.BusinessServerController;
 import tier2.businessserver.IBusinessServer;
 
 public class Station1Controller extends UnicastRemoteObject implements ISubscriber{
@@ -32,12 +31,12 @@ public class Station1Controller extends UnicastRemoteObject implements ISubscrib
 		loadProperties();
 		bindToRegistry();
 		businessServer.subscribe(this, Subject.CARS);
-		businessServer.updateView(registryName+" connected");
+		businessServer.message(registryName+" connected");
 	}
 	public void inputCar(String chassisNumber, double weight, String model) {
 		try {
 			Car car = new Car(chassisNumber, weight, model);
-			businessServer.enqueueCar(car);
+			businessServer.registerCarForDismantling(car);
 			view.notifyUserSucces(properties.getProperty("Succes_message"));
 		} catch (RemoteException e) {
 			view.notifyUserError("Enqueueing error\n"+e.getLocalizedMessage());

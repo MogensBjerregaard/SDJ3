@@ -18,7 +18,6 @@ import common.ISubscriber;
 import common.Pallet;
 import common.Product;
 import common.Subject;
-import javafx.util.Pair;
 import tier3.IDataServer;
 
 public class BusinessServerController extends UnicastRemoteObject implements IBusinessServer {
@@ -59,7 +58,7 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	}
 
 	@Override
-	public void updateView(String message) {
+	public synchronized void message(String message) {
 		LocalDateTime timePoint = LocalDateTime.now();
 		this.view.updateTextArea(timePoint + ": " + message);
 	}
@@ -74,9 +73,9 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 
 	private void initiateSystem() throws RemoteException {
 		try {
-			updateView("Connected to Main");
-			updateView("Registry naming rebind using '" + registryName + "' successful");
-			updateView(registryName + " is running");
+			message("Connected to Main");
+			message("Registry naming rebind using '" + registryName + "' successful");
+			message(registryName + " is running");
 			palletRegistrationNumberCount = dataServer.getNextPrimaryKey(Pallet.class);
 			productRegistrationNumberCount = dataServer.getNextPrimaryKey(Product.class);
 			loadData();
@@ -152,15 +151,15 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	}
 
 	@Override
-	public void enqueueCar(Car car) throws RemoteException {
+	public synchronized void registerCarForDismantling(Car car) throws RemoteException {
 		dataServer.create(car);
 		carDismantlingQueue.add(car);
 		publish(getCarList(), Subject.CARS);
-		updateView("Enqueued car: " + car.getModel() + "(" + car.getChassisNumber() + ") " + car.getWeight() + "kg");
+		message("Enqueued car: " + car.getModel() + "(" + car.getChassisNumber() + ") " + car.getWeight() + "kg");
 	}
 
 	@Override
-	public Car dequeueCar() throws RemoteException {
+	public synchronized Car getNextCarToBeDismantled() throws RemoteException {
 		if (carDismantlingQueue.isEmpty()) {
 			throw new RemoteException("dismantling queue is empty");
 		}
@@ -168,28 +167,28 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 		car.setAsDismantled();
 		dataServer.update(car);
 		publish(getCarList(), Subject.CARS);
-		updateView("Dequeued car: " + car.getModel() + "(" + car.getChassisNumber() + ") " + car.getWeight() + "kg");
+		message("Dequeued car: " + car.getModel() + "(" + car.getChassisNumber() + ") " + car.getWeight() + "kg");
 		return car;
 	}
 
 	@Override
-	public void registerCarPart(CarPart carPart) throws RemoteException {
+	public synchronized void registerCarPart(CarPart carPart) throws RemoteException {
 		dataServer.create(carPart);
 		carPartQueue.add(carPart);
 		publish(getCarPartList(), Subject.CARPARTS);
-		updateView("Registered carpart: " + carPart);
+		message("Registered carpart: " + carPart);
 	}
 
 	@Override
-	public void packageProduct(Product product) throws RemoteException {
+	public synchronized void packageProduct(Product product) throws RemoteException {
 		dataServer.create(product);
 		productQueue.add(product);
 		publish(getProductList(), Subject.PRODUCTS);
-		updateView("Product packaged: " + product);
+		message("Product packaged: " + product);
 	}
 
 	@Override
-	public void subscribe(ISubscriber subscriber, Subject... subjects) throws RemoteException {
+	public synchronized void subscribe(ISubscriber subscriber, Subject... subjects) throws RemoteException {
 		for (Subject subject : subjects) {
 			if (!subscriberMap.containsKey(subject)) {
 				subscriberMap.put(subject, new HashSet<>());
@@ -199,7 +198,7 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 		}
 	}
 
-	public void publish(String subjectList, Subject subject) throws RemoteException {
+	private synchronized void publish(String subjectList, Subject subject) throws RemoteException {
 		for (ISubscriber subscriber : subscriberMap.get(subject)) {
 			subscriber.updateSubscriber(subjectList, subject);
 		}
@@ -263,7 +262,7 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 
 	//takes selected car part types from car part queue and place them on pallets. fills 1 pallet until max weight or until empty of car part
 	@Override
-	public void generatePallets(String carPartType) throws RemoteException {
+	public synchronized void generatePallets(String carPartType) throws RemoteException {
 		Pallet pallet = new Pallet(carPartType);
 
 		for (CarPart carPart : this.carPartQueue) {
@@ -286,7 +285,7 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	}
 
 	@Override
-	public int getCarpartTypeQuantity(Integer value, String carPartType) {
+	public synchronized int getCarpartTypeQuantity(Integer value, String carPartType) {
 		int quantity = 0;
 		for (Pallet pallet : palletQueue) {
 			for (CarPart carPart : pallet.getParts()) {
@@ -304,7 +303,7 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	}
 
 	@Override
-	public CarPart pickCarPart(String carPartType) throws RemoteException {
+	public synchronized CarPart pickCarPart(String carPartType) throws RemoteException {
 		for (Pallet pallet : palletQueue) {
 			if (pallet.getTypeOfPart().equals(carPartType)) {
 					CarPart carPart = pallet.getNextCarPart();

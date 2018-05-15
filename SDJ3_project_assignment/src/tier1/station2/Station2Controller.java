@@ -10,7 +10,6 @@ import common.Car;
 import common.CarPart;
 import common.ISubscriber;
 import common.Subject;
-import tier2.businessserver.BusinessServerController;
 import tier2.businessserver.IBusinessServer;
 
 public class Station2Controller extends UnicastRemoteObject implements ISubscriber{
@@ -26,8 +25,9 @@ public class Station2Controller extends UnicastRemoteObject implements ISubscrib
 		this.view.setVisible(true);
 		this.bindToRegistry();
 		this.businessServer.subscribe(this, Subject.CARS, Subject.CARPARTS, Subject.PALLETS);
-		this.businessServer.updateView(registryName+" connected");
+		this.businessServer.message(registryName+" connected");
 	}
+
 	private void bindToRegistry(){
 		try {
 			Naming.rebind(registryName, this);
@@ -35,6 +35,7 @@ public class Station2Controller extends UnicastRemoteObject implements ISubscrib
 			System.out.println("Error binding "+registryName+" to registry.\nCheck if the Business Server is running and restart "+registryName+"\n"+e.getMessage());
 		}
 	}
+
 	@Override
 	public void updateSubscriber(String message, Subject subject) throws RemoteException {
 		if (subject.equals(Subject.CARS)) view.updateEnqueuedCarsList(message);
@@ -44,7 +45,7 @@ public class Station2Controller extends UnicastRemoteObject implements ISubscrib
 
 	public void dequeueCar() {
 		try {
-			Car car = businessServer.dequeueCar();
+			Car car = businessServer.getNextCarToBeDismantled();
 			view.loadDequeuedCar(car);
 		} catch (RemoteException e) {
 			this.view.notifyUserError("Unable to dequeue car");

@@ -14,24 +14,24 @@ import common.Subject;
 import javafx.util.Pair;
 
 public interface IBusinessServer extends Remote{
-	void enqueueCar(Car car)
+	void registerCarForDismantling(Car car)
 			throws RemoteException;
-	Car dequeueCar()
+	Car getNextCarToBeDismantled()
 			throws RemoteException;
 	void registerCarPart(CarPart carPart)
 			throws RemoteException;
 	void packageProduct(Product product)
 			throws RemoteException;
-	void subscribe(ISubscriber subscriber, Subject... subjects)
-			throws RemoteException;
-	void updateView(String message)
+	int getCarpartTypeQuantity(Integer value, String carPartType)
 			throws RemoteException;
 	void generatePallets(String carPartType)
-			throws RemoteException;
-	int getCarpartTypeQuantity(Integer value, String carPartType)
 			throws RemoteException;
 	int getNextProductRegistrationNumber()
 			throws RemoteException;
 	CarPart pickCarPart(String carPartType)
+			throws RemoteException;
+	void subscribe(ISubscriber subscriber, Subject... subjects)
+			throws RemoteException;
+	void message(String message)
 			throws RemoteException;
 }

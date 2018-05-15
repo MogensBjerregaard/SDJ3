@@ -11,8 +11,6 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 
 import common.*;
-import javafx.util.Pair;
-import tier2.businessserver.BusinessServerController;
 import tier2.businessserver.IBusinessServer;
 
 public class Station3Controller extends UnicastRemoteObject implements ISubscriber {
@@ -27,7 +25,7 @@ public class Station3Controller extends UnicastRemoteObject implements ISubscrib
 		this.view.setVisible(true);
 		this.bindToRegistry();
 		this.businessServer.subscribe(this, Subject.PALLETS, Subject.PRODUCTS);
-		this.businessServer.updateView(registryName+" connected");
+		this.businessServer.message(registryName+" connected");
 	}
 	private void bindToRegistry(){
 		try {
