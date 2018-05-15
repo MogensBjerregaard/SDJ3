@@ -181,6 +181,9 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 
 	@Override
 	public synchronized void packageProduct(Product product) throws RemoteException {
+		for (Pallet pallet : product.getPalletReferences()) {
+			System.out.println(pallet);
+		}
 		dataServer.create(product);
 		productQueue.add(product);
 		publish(getProductList(), Subject.PRODUCTS);
@@ -200,9 +203,17 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 
 	private synchronized void publish(String subjectList, Subject subject) throws RemoteException {
 		for (ISubscriber subscriber : subscriberMap.get(subject)) {
-			subscriber.updateSubscriber(subjectList, subject);
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						subscriber.updateSubscriber(subjectList, subject);
+					} catch (RemoteException e) {
+						message(e.getMessage());
+					}
+				}
+			}).start();
 		}
-
 	}
 
 	private String getCarPartList() {
@@ -236,7 +247,7 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	private String getPalletList() {
 		String subjectList = new String();
 		for (Pallet pallet : palletQueue) {
-			subjectList += String.format("%s, part type: %s, count: %d\n",
+			subjectList += String.format("%s, %s, count: %d\n",
 					pallet.getRegistrationNumber(),
 					pallet.getTypeOfPart(),
 					pallet.getParts().size());
@@ -264,7 +275,6 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	@Override
 	public synchronized void generatePallets(String carPartType) throws RemoteException {
 		Pallet pallet = new Pallet(carPartType);
-
 		for (CarPart carPart : this.carPartQueue) {
 			if (carPart.getType().equals(carPartType)) {
 				try {
@@ -276,7 +286,7 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 			}
 		}
 		if (!pallet.getParts().isEmpty()) {
-			pallet.setRegistrationNumber(palletRegistrationNumberCount++);
+			pallet.setRegistrationNumber(dataServer.getNextPrimaryKey(Pallet.class));
 			this.palletQueue.add(pallet);
 			this.dataServer.create(pallet);
 		}
@@ -285,7 +295,7 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	}
 
 	@Override
-	public synchronized int getCarpartTypeQuantity(Integer value, String carPartType) {
+	public synchronized int getCarPartTypeQuantity(Integer value, String carPartType) {
 		int quantity = 0;
 		for (Pallet pallet : palletQueue) {
 			for (CarPart carPart : pallet.getParts()) {
@@ -298,8 +308,8 @@ public class BusinessServerController extends UnicastRemoteObject implements IBu
 	}
 
 	@Override
-	public int getNextProductRegistrationNumber() {
-		return productRegistrationNumberCount++;
+	public synchronized int getNextProductRegistrationNumber() throws RemoteException {
+		return dataServer.getNextPrimaryKey(Product.class);
 	}
 
 	@Override

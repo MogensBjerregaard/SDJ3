@@ -35,6 +35,15 @@ public class ProductDAO implements IDataAccessObject<Product> {
 			statement.setObject(2, carPart.getRegistrationNumber());
 			statement.execute();
 		}
+
+		// insert rows for all pallet references
+		for (Pallet pallet : object.getPalletReferences()) {
+			String palletSql = "INSERT INTO pallet_reference (pallet_registration_number, product_registration_number) VALUES (?,?)";
+			statement = connection.prepareStatement(palletSql);
+			statement.setObject(1, pallet.getRegistrationNumber());
+			statement.setObject(2, object.getRegistrationNumber());
+			statement.execute();
+		}
 	}
 
 	@Override
@@ -109,7 +118,7 @@ public class ProductDAO implements IDataAccessObject<Product> {
 		String productType = resultSet.getString("product_type");
 		Product product = new Product(registrationNumber, productType);
 
-		// fetches all parts stored as part of the product
+		// fetches all parts stored as packaged in the product
 		String carPartSql = "SELECT registration_number, pallet_registration_number FROM car_part WHERE product_registration_number=?";
 		PreparedStatement statement = connection.prepareStatement(carPartSql);
 		statement.setObject(1, registrationNumber);
@@ -120,11 +129,22 @@ public class ProductDAO implements IDataAccessObject<Product> {
 			product.addPart(nextCarPart);
 
 			// if the part is stored on a pallet, that pallet is referenced in the product
-			String palletRegistrationNumber = carPartResultSet.getString("pallet_registration_number");
-			if (palletRegistrationNumber != null) {
-				Pallet pallet = new PalletDAO(connection).read(palletRegistrationNumber);
-				product.addPalletReference(pallet);
-			}
+//			String palletRegistrationNumber = carPartResultSet.getString("pallet_registration_number");
+//			if (palletRegistrationNumber != null) {
+//				Pallet pallet = new PalletDAO(connection).read(palletRegistrationNumber);
+//				product.addPalletReference(pallet);
+//			}
+		}
+
+		// fetches all pallet references for the product
+		String palletSql = "SELECT pallet_registration_number FROM pallet_reference WHERE product_registration_number=?";
+		statement = connection.prepareStatement(palletSql);
+		statement.setObject(1, registrationNumber);
+		ResultSet palletResultSet = statement.executeQuery();
+		while (palletResultSet.next()) {
+			String palletRegistrationNumber = palletResultSet.getString("pallet_registration_number");
+			Pallet nextPallet = new PalletDAO(connection).read(palletRegistrationNumber);
+			product.addPalletReference(nextPallet);
 		}
 		return product;
 	}

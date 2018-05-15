@@ -3,9 +3,9 @@ package test;
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 
-import tier1.station1.Station1;
-import tier1.station2.Station2;
-import tier1.station3.Station3;
+import tier1.carregistrationclient.Station1;
+import tier1.dismantlingstationclient.Station2;
+import tier1.productpackagingclient.Station3;
 import tier2.businessserver.BusinessServer;
 
 public class Test {

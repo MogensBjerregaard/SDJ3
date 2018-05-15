@@ -1,4 +1,4 @@
-package tier1.station2;
+package tier1.dismantlingstationclient;
 
 import java.awt.Font;
 import java.io.FileInputStream;
@@ -22,10 +22,10 @@ import javax.swing.border.EmptyBorder;
 
 import common.Car;
 
-public class Station2View extends JFrame{
+public class DismantlingStationClientView extends JFrame{
 	private static final long serialVersionUID = 1L;
 	private static Properties properties;
-	private Station2Controller controller;
+	private DismantlingStationClientController controller;
 	private JPanel contentPane;
 
 	private JButton btnDequeueCar;
@@ -63,7 +63,7 @@ public class Station2View extends JFrame{
 	private JCheckBox chckbxSteering;
 	private HashMap<JCheckBox, String> checkBoxes;
 
-	public Station2View(Station2Controller controller) {
+	public DismantlingStationClientView(DismantlingStationClientController controller) {
 		loadProperties();
 		this.controller = controller;
 		this.initComponents();
@@ -71,7 +71,7 @@ public class Station2View extends JFrame{
 	}
 	private void initComponents() {
 		this.setResizable(false);
-		this.setTitle("Station 2 Tier 1");
+		this.setTitle("Dismantling Station Client - Tier 1");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setBounds(410, 50, 640, 300);
 		this.contentPane = new JPanel();
@@ -342,7 +342,7 @@ public class Station2View extends JFrame{
 		this.btnWeigh.setEnabled(true);
 	}
 	private static void loadProperties(){
-		try (InputStream in = new FileInputStream("C:\\ScriptsSemester4\\SDJ3\\Project\\SDJ3_project_assignment\\station2.properties")){
+		try (InputStream in = new FileInputStream("C:\\ScriptsSemester4\\SDJ3\\Project\\SDJ3_project_assignment\\dismantlingstationclient.properties")){
 			properties = new Properties();
 			properties.load(in);
 		} catch (FileNotFoundException e) {

@@ -28,17 +28,31 @@ public class Car implements Serializable{
 	public String getChassisNumber() {
 		return this.chassisNumber;
 	}
+
 	public double getWeight() {
 		return this.weight;
 	}
+
 	public String getModel() {
 		return this.model;
 	}
+
 	public boolean isDismantled() {
 		return isDismantled;
 	}
+
 	public void setAsDismantled() {
 		isDismantled = true;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Car)) {
+			return false;
+		}
+
+		Car other = (Car) obj;
+		return this.chassisNumber.equals(other.chassisNumber);
 	}
 
 	@Override

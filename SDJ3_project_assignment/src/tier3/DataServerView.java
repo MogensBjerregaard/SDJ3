@@ -18,7 +18,7 @@ public class DataServerView extends JFrame implements IDataServerView {
 	}
 	private void initiateComponents() {
 		this.setVisible(true);
-		setTitle("Data Server Tier 3");
+		setTitle("Data Server - Tier 3");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(50, 650, 600, 300);
 		contentPane = new JPanel();

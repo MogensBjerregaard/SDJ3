@@ -22,7 +22,7 @@ public interface IBusinessServer extends Remote{
 			throws RemoteException;
 	void packageProduct(Product product)
 			throws RemoteException;
-	int getCarpartTypeQuantity(Integer value, String carPartType)
+	int getCarPartTypeQuantity(Integer value, String carPartType)
 			throws RemoteException;
 	void generatePallets(String carPartType)
 			throws RemoteException;

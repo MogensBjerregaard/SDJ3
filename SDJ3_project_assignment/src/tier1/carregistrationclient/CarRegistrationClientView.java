@@ -1,4 +1,4 @@
-package tier1.station1;
+package tier1.carregistrationclient;
 
 import java.awt.Font;
 import java.io.FileInputStream;
@@ -18,7 +18,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-public class Station1View extends JFrame {
+public class CarRegistrationClientView extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private static Properties properties;
 	private JPanel contentPane;
@@ -29,13 +29,13 @@ public class Station1View extends JFrame {
 	private JLabel lblSelectCarType;
 	private JComboBox<String> comboBoxCarModels;
 	private JButton btnEnqueueCar;
-	private Station1Controller controller;
+	private CarRegistrationClientController controller;
 	private double weight;
 	private String chassisNumber;
 	private String model;
 	private JTextArea textArea;
 
-	public Station1View(Station1Controller controller) {
+	public CarRegistrationClientView(CarRegistrationClientController controller) {
 		loadProperties();
 		this.controller = controller;
 		this.initComponents();
@@ -43,7 +43,7 @@ public class Station1View extends JFrame {
 	}
 	private void initComponents() {
 		this.setResizable(false);
-		this.setTitle("Station 1 Tier 1");
+		this.setTitle("Car Registration Client - Tier 1");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setBounds(50, 50, 360, 300);
 		this.contentPane = new JPanel();
@@ -153,7 +153,7 @@ public class Station1View extends JFrame {
 	}
 
 	private static void loadProperties(){
-		try (InputStream in = new FileInputStream("C:\\ScriptsSemester4\\SDJ3\\Project\\SDJ3_project_assignment\\station1.properties")){
+		try (InputStream in = new FileInputStream("C:\\ScriptsSemester4\\SDJ3\\Project\\SDJ3_project_assignment\\carregistrationclient.properties")){
 			properties = new Properties();
 			properties.load(in);
 		} catch (FileNotFoundException e) {

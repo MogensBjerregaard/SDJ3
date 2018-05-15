@@ -11,36 +11,62 @@ public class Product implements Serializable{
 	private String productType;
 	private HashSet<Pallet> palletReferences;
 	private ArrayList<CarPart> parts;
+
 	public Product(int registrationNumber, String productType) {
 		this.registrationNumber = registrationNumber;
 		this.productType = productType;
 		this.palletReferences = new HashSet<>();
 		this.parts = new ArrayList<>();
 	}
+
 	public HashSet<Pallet> getPalletReferences() {
 		return palletReferences;
 	}
+
 	public void addPalletReference(Pallet pallet) {
+		for (Pallet currentPallet : palletReferences) {
+			if (currentPallet.equals(pallet)) {
+				return;
+			}
+		}
 		palletReferences.add(pallet);
 	}
+
 	public void setPalletReferences(HashSet<Pallet> palletReferences) {
 		this.palletReferences = palletReferences;
 	}
+
 	public ArrayList<CarPart> getParts() {
 		return parts;
 	}
+
 	public void addPart(CarPart part) {
 		parts.add(part);
 	}
+
 	public void setParts(ArrayList<CarPart> parts) {
 		this.parts = parts;
 	}
+
 	public int getRegistrationNumber() {
 		return registrationNumber;
 	}
+
 	public String getProductType() {
 		return productType; 
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Product)) {
+			return false;
+		}
+
+		Product other = (Product) obj;
+		return this.registrationNumber == other.registrationNumber;
+	}
+
+	@Override
 	public String toString() {
 		return "class=" + this.getClass().getSimpleName() +
 				", registrationNumber=" + registrationNumber +

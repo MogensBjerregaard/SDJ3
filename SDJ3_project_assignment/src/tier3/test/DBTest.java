@@ -38,6 +38,7 @@ public class DBTest {
 //			dataServer.insertPallet(pallet);;
 			IDataServer dataServer = new DataServerController("jdbc:postgresql://localhost:5432/SDJ3_Project", "postgres", "Postgres", new DAOFactory(), new DataServerView());
 
+
 //			Car car = new Car("999", 999, "test");
 //			dataServer.create(car);
 //
@@ -54,8 +55,8 @@ public class DBTest {
 //			pallet.addPart(carPart03);
 //			dataServer.create(pallet);
 //
-			Product product = new Product(9999, "testType");
-			dataServer.delete(product);
+//			Product product = new Product(9999, "testType");
+//			dataServer.delete(product);
 //			product.addPart(carPart01);
 //			product.addPart(carPart02);
 //			product.addPart(carPart03);
